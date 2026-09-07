@@ -1,2 +1,118 @@
 
 ===== config4_semantic =====
+O Q01 [-]  12.9s
+O Q02 [K]   7.4s
+X Q03 [M]   8.0s  누락=['다음 결제 주기'] 금지=[] 숫자=OK
+O Q04 [M]   9.8s
+O Q05 [-]   9.9s
+O Q06 [K]   7.4s
+O Q07 [-]   7.3s
+O Q08 [K]   4.6s
+X Q09 [M]   8.2s  누락=['준용'] 금지=[] 숫자=OK
+O Q10 [K]   9.3s
+O Q11 [D]   8.8s
+O Q12 [D]   6.5s
+O Q13 [D]   5.2s
+X Q14 [K]  11.0s  누락=['9조 3항'] 금지=[] 숫자=OK
+O Q15 [K]   6.1s
+O Q16 [D]   5.5s
+O Q17 [D]   6.3s
+O Q18 [K]   9.5s
+O Q19 [K]   5.1s
+O Q20 [M]   6.2s
+O Q21 [K]   7.5s
+O Q22 [K]   5.0s
+O Q23 [D]   5.5s
+O Q24 [D]   6.3s
+O Q25 [D]   5.2s
+O Q26 [D]   6.2s
+O Q27 [D]   5.9s
+O Q28 [K]   6.5s
+O Q29 [D]   7.3s
+X Q30 [R]   9.1s  누락=['운영 매뉴얼', 'FAQ'] 금지=[] 숫자=OK
+
+유형별 정답률
+  기준선 (-)  3/ 3
+  검색  (R)  0/ 1
+  데이터 (D) 11/11
+  의미  (M)  2/ 4
+  규칙  (K) 10/11
+  전체        26/30
+토큰 75,129 / 소요 219.3s / LLM 호출 60회
+결과 저장: D:\WORK_agent\ontology_wikidocs\ontology-tutorial\results\config4_semantic.jsonl
+
+===== config5_graph =====
+O Q01 [-]   7.6s
+O Q02 [K]   6.0s
+O Q03 [M]   8.4s
+O Q04 [M]   8.9s
+O Q05 [-]   7.4s
+O Q06 [K]   7.1s
+O Q07 [-]   5.9s
+O Q08 [K]   5.6s
+O Q09 [M]  10.0s
+O Q10 [K]   8.8s
+O Q11 [D]   7.3s
+O Q12 [D]   5.3s
+O Q13 [D]   5.0s
+X Q14 [K]   6.7s  누락=['9조 3항'] 금지=[] 숫자=OK
+O Q15 [K]   5.4s
+O Q16 [D]   6.5s
+O Q17 [D]   6.5s
+O Q18 [K]   5.2s
+X Q19 [K]   5.4s  누락=[] 금지=['전액 환불합니다'] 숫자=OK
+O Q20 [M]   5.5s
+O Q21 [K]  10.5s
+O Q22 [K]   8.2s
+O Q23 [D]   5.1s
+O Q24 [D]   5.5s
+O Q25 [D]   5.4s
+O Q26 [D]   5.4s
+O Q27 [D]   5.9s
+O Q28 [K]   5.9s
+O Q29 [D]   6.7s
+X Q30 [R]   8.2s  누락=['운영 매뉴얼'] 금지=[] 숫자=OK
+
+유형별 정답률
+  기준선 (-)  3/ 3
+  검색  (R)  0/ 1
+  데이터 (D) 11/11
+  의미  (M)  4/ 4
+  규칙  (K)  9/11
+  전체        27/30
+토큰 75,251 / 소요 201.4s / LLM 호출 60회
+결과 저장: D:\WORK_agent\ontology_wikidocs\ontology-tutorial\results\config5_graph.jsonl
+
+| 질문 | 유형 | config4_semantic | config5_graph |
+|---|---|---|---|
+| Q01 | - | O | O |
+| Q02 | K | O | O |
+| Q03 | M | X | O |
+| Q04 | M | O | O |
+| Q05 | - | O | O |
+| Q06 | K | O | O |
+| Q07 | - | O | O |
+| Q08 | K | O | O |
+| Q09 | M | X | O |
+| Q10 | K | O | O |
+| Q11 | D | O | O |
+| Q12 | D | O | O |
+| Q13 | D | O | O |
+| Q14 | K | X | X |
+| Q15 | K | O | O |
+| Q16 | D | O | O |
+| Q17 | D | O | O |
+| Q18 | K | O | O |
+| Q19 | K | O | X |
+| Q20 | M | O | O |
+| Q21 | K | O | O |
+| Q22 | K | O | O |
+| Q23 | D | O | O |
+| Q24 | D | O | O |
+| Q25 | D | O | O |
+| Q26 | D | O | O |
+| Q27 | D | O | O |
+| Q28 | K | O | O |
+| Q29 | D | O | O |
+| Q30 | R | X | X |
+| **정답 수** | | 26/30 | 27/30 |

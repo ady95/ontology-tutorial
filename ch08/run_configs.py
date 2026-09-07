@@ -47,11 +47,19 @@ if __name__ == "__main__":
     ap.add_argument("--configs", nargs="*", default=ORDER)
     ap.add_argument("--compare-only", action="store_true")
     ap.add_argument("--only", nargs="*")
+    ap.add_argument("--runs", type=int, default=1, help="반복 실행 횟수 (결과 파일은 <config>_r<i>.jsonl)")
+    ap.add_argument("--start", type=int, default=1, help="반복 시작 번호 (이전 회차를 보존하고 이어서 돌릴 때)")
     a = ap.parse_args()
     if not a.compare_only:
-        for name in a.configs:
-            print(f"\n===== {name} =====")
-            evaluate.run(name, pipeline_for(name), only=a.only)
+        for i in range(a.start, a.start + a.runs):
+            for name in a.configs:
+                suffix = f"_r{i}" if (a.runs > 1 or a.start > 1) else ""
+                print(f"\n===== {name}{suffix} =====")
+                evaluate.run(name + suffix, pipeline_for(name), only=a.only)
     existing = [n for n in a.configs if (evaluate.RESULTS_DIR / f"{n}.jsonl").exists()]
     print()
-    print(evaluate.compare(*existing))
+    if existing:
+        print(evaluate.compare(*existing))
+    if any((evaluate.RESULTS_DIR / f"{n}_r1.jsonl").exists() for n in a.configs):
+        print()
+        print(evaluate.compare_runs(*a.configs, runs=max(a.runs + a.start - 1, 3)))

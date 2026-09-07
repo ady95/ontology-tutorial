@@ -75,6 +75,13 @@ def analyze(question: str, as_of: date) -> dict:
     m = re.search(r"(?<![A-Za-z0-9])INC-\d{2}(?!\d)", question)
     if m and not out.get("incident_id"):
         out["incident_id"] = m.group()
+    if not out.get("clause_hint"):  # "환불 규정 4조", "약관 9조 3항" 같은 지목을 조항 id 로
+        m = re.search(r"(환불 규정|약관|이용약관)\s*(?:제)?(\d+)조(?:\s*(?:제)?(\d+)항)?", question)
+        if m:
+            doc = "refund_policy_v2" if m.group(1) == "환불 규정" else "terms_of_service"
+            out["clause_hint"] = f"{doc}:{m.group(2)}" + (f".{m.group(3)}" if m.group(3) else "")
+            if out.get("request_type") in (None, "PolicyQuestion") and re.search(r"개정|바뀌|변경", question):
+                out["request_type"] = "ImpactAnalysis"
     return out
 
 

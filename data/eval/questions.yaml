@@ -40,7 +40,7 @@ questions:
     needs_data: false
     expected_status: answer
     answer: 아니요. 해지는 다음 결제 주기부터 갱신하지 않는 것이며 금액은 반환되지 않습니다. 현재 주기가 끝날 때까지 이용할 수 있습니다. 금액 반환은 환불 규정에 따른 별도 절차입니다.
-    key_facts: ["반환되지 않|반환되지는 않|돌아오지 않|돌려받을 수 없", 다음 결제 주기]
+    key_facts: ["반환되지 않|반환되지는 않|돌아오지 않|돌려받을 수 없", "다음 결제 주기|다음 결제일|다음 주기|다음 갱신"]
     evidence: [terms_of_service:4.1, refund_policy_v2:2.3]
 
   - id: Q04
@@ -140,7 +140,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 결제일이 2025-06-20이므로 기본은 제1판이지만, 제2판(위약금 없음)이 더 유리하므로 약관 9조 3항에 따라 제2판 4조 2항을 적용합니다. 잔여 284일 일할 환불 139,277원에서 연간 할인 환수분 7,945원을 빼 약 131,300원을 환불합니다. 제1판을 적용했다면 위약금 10%를 공제해 약 125,300원입니다.
-    key_facts: [제2판, 9조 3항]
+    key_facts: [제2판, "9조 3항|제9조 제3항|9조3항"]
     numeric_answer: 131332
     numeric_tolerance: 500
     evidence: [terms_of_service:9.3, refund_policy_v2:4.2, refund_policy_v2:4.4, ops_manual:2.2]

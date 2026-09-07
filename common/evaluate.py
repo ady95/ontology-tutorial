@@ -161,6 +161,48 @@ def compare(*config_names: str) -> str:
     return "\n".join(lines)
 
 
+def aggregate(config_name: str, runs: int = 3) -> dict:
+    """config_r1..rN 결과를 모아 질문별 정답 횟수를 센다. 반환: {qid: {"hits": n, "runs": N}}"""
+    out: dict[str, dict] = {}
+    for i in range(1, runs + 1):
+        p = RESULTS_DIR / f"{config_name}_r{i}.jsonl"
+        if not p.exists():
+            continue
+        for l in p.read_text(encoding="utf-8").splitlines():
+            if not l.strip():
+                continue
+            r = json.loads(l)
+            d = out.setdefault(r["id"], {"hits": 0, "runs": 0, "type": r["error_type"], "tokens": 0, "seconds": 0.0})
+            d["runs"] += 1
+            d["hits"] += int(r["correct"])
+            d["tokens"] += r["prompt_tokens"] + r["completion_tokens"]
+            d["seconds"] += r["seconds"]
+    return out
+
+
+def compare_runs(*config_names: str, runs: int = 3) -> str:
+    """구성별로 N회 중 정답 횟수를 표로. 3/3 = 안정 정답, 0/3 = 안정 오답, 그 사이 = 불안정."""
+    aggs = {n: aggregate(n, runs) for n in config_names}
+    _, questions = load_questions()
+    head = "| 질문 | 유형 | " + " | ".join(config_names) + " |"
+    lines = [head, "|---|---|" + "|".join("---" for _ in config_names) + "|"]
+    for q in questions:
+        cells = []
+        for n in config_names:
+            d = aggs[n].get(q["id"])
+            cells.append("-" if not d else f"{d['hits']}/{d['runs']}")
+        lines.append(f"| {q['id']} | {q['error_type']} | " + " | ".join(cells) + " |")
+    tot = []
+    for n in config_names:
+        a = aggs[n]
+        stable = sum(1 for d in a.values() if d["hits"] == d["runs"])
+        unstable = sum(1 for d in a.values() if 0 < d["hits"] < d["runs"])
+        mean = sum(d["hits"] for d in a.values()) / max(1, runs)
+        tot.append(f"안정 {stable} / 불안정 {unstable} / 평균 {mean:.1f}")
+    lines.append("| **집계** | | " + " | ".join(tot) + " |")
+    return "\n".join(lines)
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1:
         path = pathlib.Path(sys.argv[1])
