@@ -1,0 +1,74 @@
+# 조항 사이의 관계 (05-3 산출물)
+# rel:
+#   supersedes               제2판 조항이 제1판 조항을 대체
+#   applies_mutatis_mutandis 준용 (학생 요금제 → 베이직 규정)
+#   cites                    운영 매뉴얼·FAQ 항목이 근거로 삼는 규정 조항 (규정이 바뀌면 인용하는 쪽을 재점검)
+#   defines                  조항이 개념(concept:ID)을 정의
+# 조항 id 형식: 문서id:조.항  (항이 없으면 조 또는 절 단위)
+
+links:
+  # 제2판 → 제1판 대체 관계
+  - {from: "refund_policy_v2:3.1", rel: supersedes, to: "refund_policy_v1:2.1"}
+  - {from: "refund_policy_v2:3.2", rel: supersedes, to: "refund_policy_v1:2.2"}
+  - {from: "refund_policy_v2:4.1", rel: supersedes, to: "refund_policy_v1:3.1"}
+  - {from: "refund_policy_v2:4.2", rel: supersedes, to: "refund_policy_v1:3.2"}
+  - {from: "refund_policy_v2:4.4", rel: supersedes, to: "refund_policy_v1:3.3"}
+  - {from: "refund_policy_v2:5.1", rel: supersedes, to: "refund_policy_v1:4.1"}
+  - {from: "refund_policy_v2:5.2", rel: supersedes, to: "refund_policy_v1:4.2"}
+  - {from: "refund_policy_v2:7.1", rel: supersedes, to: "refund_policy_v1:5.1"}
+  - {from: "refund_policy_v2:7.2", rel: supersedes, to: "refund_policy_v1:5.2"}
+  - {from: "refund_policy_v2:8.1", rel: supersedes, to: "refund_policy_v1:6.1"}
+  - {from: "refund_policy_v2:8.2", rel: supersedes, to: "refund_policy_v1:6.2"}
+  - {from: "refund_policy_v2:9.1", rel: supersedes, to: "refund_policy_v1:7.1"}
+  - {from: "refund_policy_v2:9.2", rel: supersedes, to: "refund_policy_v1:7.2"}
+
+  # 준용
+  - {from: "refund_policy_v2:6.1", rel: applies_mutatis_mutandis, to: "refund_policy_v2:3"}
+  - {from: "refund_policy_v2:6.1", rel: applies_mutatis_mutandis, to: "refund_policy_v2:4"}
+
+  # 인용: 운영 매뉴얼 → 규정·약관
+  - {from: "ops_manual:1", rel: cites, to: "refund_policy_v2:2.1"}
+  - {from: "ops_manual:1", rel: cites, to: "refund_policy_v2:3.1"}
+  - {from: "ops_manual:1", rel: cites, to: "refund_policy_v2:7.1"}
+  - {from: "ops_manual:1", rel: cites, to: "terms_of_service:8.1"}
+  - {from: "ops_manual:2", rel: cites, to: "terms_of_service:2.2"}
+  - {from: "ops_manual:2", rel: cites, to: "terms_of_service:3.3"}
+  - {from: "ops_manual:2", rel: cites, to: "terms_of_service:9.3"}
+  - {from: "ops_manual:2", rel: cites, to: "refund_policy_v2:1.2"}
+  - {from: "ops_manual:2", rel: cites, to: "refund_policy_v2:4.1"}
+  - {from: "ops_manual:2", rel: cites, to: "refund_policy_v2:4.3"}
+  - {from: "ops_manual:4", rel: cites, to: "terms_of_service:4"}
+  - {from: "ops_manual:4", rel: cites, to: "refund_policy_v2:2.3"}
+  - {from: "ops_manual:5", rel: cites, to: "refund_policy_v2:8.1"}
+  - {from: "ops_manual:5", rel: cites, to: "refund_policy_v2:8.2"}
+  - {from: "ops_manual:5", rel: cites, to: "terms_of_service:7.2"}
+  - {from: "ops_manual:6", rel: cites, to: "terms_of_service:9"}
+
+  # 인용: FAQ → 규정·약관
+  - {from: "faq:결제와 구독", rel: cites, to: "terms_of_service:4.1"}
+  - {from: "faq:결제와 구독", rel: cites, to: "refund_policy_v2:3.1"}
+  - {from: "faq:결제와 구독", rel: cites, to: "refund_policy_v2:4.1"}
+  - {from: "faq:결제와 구독", rel: cites, to: "refund_policy_v2:7.1"}
+  - {from: "faq:팀 요금제", rel: cites, to: "refund_policy_v2:5.1"}
+  - {from: "faq:팀 요금제", rel: cites, to: "terms_of_service:8.1"}
+  - {from: "faq:학생 요금제", rel: cites, to: "refund_policy_v2:6.2"}
+  - {from: "faq:서비스 장애", rel: cites, to: "refund_policy_v2:8.1"}
+  - {from: "faq:서비스 장애", rel: cites, to: "refund_policy_v2:8.2"}
+  - {from: "pricing_guide:할인과 프로모션", rel: cites, to: "refund_policy_v2:7.1"}
+  - {from: "pricing_guide:할인과 프로모션", rel: cites, to: "refund_policy_v2:6.2"}
+  - {from: "pricing_guide:팀 요금제 좌석", rel: cites, to: "refund_policy_v2:5.3"}
+
+  # 정의: 조항 → 개념
+  - {from: "refund_policy_v2:2.1", rel: defines, to: "concept:Unused"}
+  - {from: "refund_policy_v2:2.2", rel: defines, to: "concept:RefundRequest"}
+  - {from: "refund_policy_v2:2.3", rel: defines, to: "concept:CancellationRequest"}
+  - {from: "terms_of_service:4.1", rel: defines, to: "concept:CancellationRequest"}
+  - {from: "terms_of_service:4.2", rel: defines, to: "concept:RefundRequest"}
+  - {from: "terms_of_service:4.3", rel: defines, to: "concept:PaymentReversalRequest"}
+  - {from: "terms_of_service:1.2", rel: defines, to: "concept:Subscription"}
+  - {from: "terms_of_service:1.3", rel: defines, to: "concept:billing_cycle"}
+  - {from: "terms_of_service:1.4", rel: defines, to: "concept:Seat"}
+  - {from: "terms_of_service:2.2", rel: defines, to: "concept:paid_at"}
+  - {from: "terms_of_service:7.2", rel: defines, to: "concept:PlannedMaintenance"}
+  - {from: "refund_policy_v2:8.1", rel: defines, to: "concept:Credit"}
+  - {from: "ops_manual:3", rel: defines, to: "concept:ApprovalAuthority"}
