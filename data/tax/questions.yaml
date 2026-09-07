@@ -1,0 +1,146 @@
+# 가상 세무 질문 10개 — 개인사업자의 부가가치세 간이과세 적용 여부 (10장 설계 데이터)
+#
+# 형식은 data/eval/questions.yaml 과 같다. 다른 점:
+#   expected_status 에 split(해석이 갈리는 사안) 이 추가됨 (10-4)
+#   evidence 는 조문 id — vat_act:61.1 = 부가가치세법 61조 1항, vat_act:61.1.3 = 같은 항 3호,
+#                          vat_decree:109.1 = 시행령 109조 1항, threshold:v3 = policy_versions.yaml 의 판
+#   topic: 질문이 주로 시험하는 것 — time(시점) / term(용어) / hold(보류) / split(해석 차이) / exclusion(예외·배제) / base(기준선)
+#
+# 모든 납세자·금액·날짜는 가상이다. 기준 연도 2025년. 판정 대상 적용기간은 2025-07-01 ~ 2026-06-30,
+# 따라서 "직전 연도"는 2024년(1역년)이다. 실제 세무 판단에 쓰지 말 것.
+
+as_of: 2025-09-08
+application_period: {from: 2025-07-01, to: 2026-06-30, preceding_year: 2024}
+
+questions:
+  - id: T01
+    topic: base
+    question: 동네 소매점을 혼자 운영하는 개인사업자입니다. 2024년 공급대가 합계가 7,000만원인데 올해 7월부터 간이과세자로 남을 수 있나요?
+    taxpayer: T001
+    error_type: "-"
+    needs_data: false
+    expected_status: answer
+    answer: 가능합니다. 2024년 공급대가 합계 7,000만원은 기준 금액 1억 400만원 미만이고, 소매업은 배제 업종이 아니며 사업장이 하나이므로 2025-07-01부터 2026-06-30까지 간이과세가 적용됩니다.
+    key_facts: [1억 400만원, 미만, 간이과세]
+    evidence: [vat_act:61.1, vat_decree:109.1, vat_act:62.1, threshold:v3]
+
+  - id: T02
+    topic: time
+    question: 2024년 공급대가가 9,000만원입니다. 8,000만원이 넘으면 일반과세로 바뀐다고 들었는데 맞나요?
+    taxpayer: T002
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 아닙니다. 8,000만원은 2021-07-01부터 2024-06-30까지 적용된 기준입니다. 2024-07-01부터는 1억 400만원 미만이면 간이과세가 적용되므로, 배제 업종이 아니고 사업장이 하나라면 9,000만원은 간이과세 범위 안입니다.
+    key_facts: [1억 400만원, 간이과세]
+    forbidden_facts: [일반과세자로 전환]
+    evidence: [vat_decree:109.1, threshold:v3, threshold:v2]
+    note: 옛 판(8,000만원)과 현행 판이 문서에 함께 있으면 기본 RAG 는 옛 기준을 답하기 쉽다. 5-2의 Q02와 같은 구조.
+
+  - id: T03
+    topic: term
+    question: 작년 매출이 부가세 빼고 9,800만원이었어요. 1억 400만원 안 넘으니까 간이과세 되죠?
+    taxpayer: T003
+    error_type: M
+    needs_data: false
+    expected_status: answer
+    answer: 되지 않습니다. 기준 금액은 부가가치세가 포함된 공급대가로 판단합니다. 부가세를 뺀 9,800만원은 공급가액이고, 공급대가는 9,800만원 × 1.1 = 1억 780만원으로 1억 400만원 이상이므로 간이과세가 배제됩니다.
+    key_facts: [공급대가, 부가가치세 포함, 1억 780만원, 배제]
+    forbidden_facts: [간이과세가 적용됩니다]
+    evidence: [vat_act:61.1, vat_decree:109.1]
+    note: 공급가액 → 공급대가 환산은 전액 과세 매출이라는 가정. 면세 매출이 섞여 있으면 T05처럼 추가 확인이 필요하다.
+
+  - id: T04
+    topic: exclusion
+    question: 상가 하나를 세놓고 있습니다. 2024년 임대료 공급대가 합계가 6,000만원인데 1억 400만원 미만이니 간이과세 맞나요?
+    taxpayer: T004
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 아닙니다. 부동산임대업은 해당 업종의 직전 연도 공급대가 합계가 4,800만원 이상이면 간이과세에서 제외됩니다. 6,000만원은 4,800만원 이상이므로 2025-07-01부터 일반과세가 적용됩니다.
+    key_facts: [부동산임대업, 4,800만원, 제외]
+    forbidden_facts: [간이과세가 적용됩니다]
+    evidence: [vat_act:61.1.3, threshold:v3]
+
+  - id: T05
+    topic: hold
+    question: 임대 수입이 좀 있고 카페도 합니다. 작년에 다 합쳐서 9,500만원 정도인데 간이과세 될까요?
+    taxpayer: T005
+    error_type: K
+    needs_data: false
+    expected_status: hold
+    answer: 결론을 보류합니다. 세 가지를 확인해야 합니다. 첫째, 9,500만원이 부가세를 포함한 공급대가인지. 둘째, 임대와 카페가 같은 사업장인지 별도 사업장인지. 셋째, 임대업만의 공급대가가 4,800만원 이상인지. 임대업 공급대가가 4,800만원 이상이면 합계와 관계없이 간이과세가 제외되고, 별도 사업장이면 두 사업장 합계로 1억 400만원 기준을 봅니다.
+    key_facts: [보류, 공급대가, 임대, 4,800만원, 사업장]
+    forbidden_facts: [간이과세가 적용됩니다, 간이과세가 배제됩니다]
+    evidence: [vat_act:61.1.3, vat_act:61.1.4, vat_act:61.1]
+    note: 10-3의 "무엇부터 물을지" 예제. 업종별 금액을 모르면 결론을 낼 수 없다.
+
+  - id: T06
+    topic: time
+    question: 2024년 10월 15일에 옷가게를 열었고 연말까지 공급대가가 2,000만원이었습니다. 올해 7월부터도 간이과세인가요?
+    taxpayer: T006
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 가능합니다. 직전 과세기간에 신규로 사업을 시작했으므로 개업일부터 과세기간 종료일까지의 공급대가를 12개월로 환산합니다. 2024-10-15부터 12-31까지는 2개월 17일이고 1개월 미만의 끝수는 1개월로 보므로 3개월입니다. 2,000만원 × 12 ÷ 3 = 8,000만원으로 1억 400만원 미만이므로 간이과세가 유지됩니다.
+    key_facts: [12개월, 환산, 3개월, 8,000만원, 미만]
+    evidence: [vat_act:61.2, vat_decree:109.1, threshold:v3]
+    note: 환산액 8,000만원은 옛 판(8,000만원 미만)이었다면 기준에 미달하지 않아 배제됐을 값. 판과 환산이 함께 작용하는 예.
+
+  - id: T07
+    topic: hold
+    question: 납세자 T007은 올해 7월부터 간이과세자인가요?
+    taxpayer: T007
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 아닙니다. T007은 사업장이 두 곳(소매점, 온라인 판매)이고 2024년 공급대가가 각각 6,000만원, 5,500만원으로 사업장별로는 기준 미만이지만, 둘 이상 사업장의 합계 1억 1,500만원이 1억 400만원 이상이므로 두 사업장 모두 간이과세에서 제외됩니다.
+    key_facts: [두 곳, 합계, 1억 1,500만원, 제외]
+    evidence: [vat_act:61.1.4, vat_decree:109.1]
+    structured_data: {business_places: 2, supply_consideration_2024: [60000000, 55000000], industries: [소매업, 통신판매업]}
+    note: 질문에 금액이 없다. 사업장 목록과 사업장별 공급대가는 정형 데이터에서 가져와야 한다.
+
+  - id: T08
+    topic: exclusion
+    question: 작은 도매상을 시작해서 2024년 공급대가가 3,000만원밖에 안 됩니다. 간이과세 신청할 수 있죠?
+    taxpayer: T008
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 할 수 없습니다. 도매업은 규모와 관계없이 간이과세가 적용되지 않는 업종으로 시행령에 정해져 있습니다. 공급대가가 기준 금액 미만이어도 일반과세자입니다.
+    key_facts: [도매업, 배제 업종, 규모와 관계없이]
+    forbidden_facts: [간이과세가 적용됩니다]
+    evidence: [vat_act:61.1.2, vat_decree:109.2.3]
+    note: 배제 업종 목록(시행령 109조 2항)은 2025-12-30 개정이 있어 2025년 시점 목록은 확인 필요. 도매업은 개정 전후 모두 포함.
+
+  - id: T09
+    topic: split
+    question: 한 사업장에서 1층은 카페로 쓰고 2층은 세놓고 있습니다. 2024년 공급대가가 카페 6,000만원, 임대 4,000만원인데 간이과세 되나요?
+    taxpayer: T009
+    error_type: K
+    needs_data: false
+    expected_status: split
+    interpretation_issue: I-01
+    answer: 해석이 갈리는 사안으로 표시합니다. 합계 1억원은 1억 400만원 미만이고 임대업 공급대가 4,000만원은 4,800만원 미만이므로, 조문을 업종별로 읽는 해석 A에서는 간이과세가 적용됩니다. 임대업을 겸영하는 사업장 전체에 4,800만원 기준을 적용하는 해석 B에서는 배제됩니다. 이 책은 어느 쪽이 맞는지 판정하지 않으며, 검토 상태를 함께 표시합니다.
+    key_facts: [해석, 4,800만원, 업종별, 검토]
+    forbidden_facts: [확실히 간이과세, 확실히 배제]
+    evidence: [vat_act:61.1.3, vat_act:61.1, interpretation:I-01]
+    note: 해석 A·B 는 설계 예시를 위해 만든 가상의 대립 구조다. 실제 예규·판례로 확인하지 않았다 (10-4).
+
+  - id: T10
+    topic: split
+    question: 2024년 12월 20일에 사업자등록을 했지만 첫 매출은 2025년 1월 10일에 나왔습니다. 2024년 공급대가가 0원인데 12개월 환산은 어떻게 하나요?
+    taxpayer: T010
+    error_type: K
+    needs_data: false
+    expected_status: split
+    interpretation_issue: I-02
+    answer: 해석이 갈리는 사안으로 표시합니다. 사업 개시일을 사업자등록일(2024-12-20)로 보는 해석 A에서는 2024년에 1개월(끝수 1개월)의 사업 기간이 있고 공급대가 0원을 환산해도 0원이므로 기준 미만입니다. 사업 개시일을 실제 재화·용역 공급 개시일(2025-01-10)로 보는 해석 B에서는 2024년에는 사업을 시작하지 않은 것이 되어 2025년이 최초 과세기간이며 환산 대상이 아닙니다. 두 해석 모두 2025-07-01부터의 간이과세 적용이라는 결론은 같지만 근거 조항과 이후 판정 시점이 다르므로 기록해 둡니다.
+    key_facts: [해석, 사업 개시일, 등록일, 공급 개시일]
+    evidence: [vat_act:61.2, vat_act:61.3, vat_act:61.4, vat_decree:6, interpretation:I-02]
+    note: 결론이 같아도 근거가 다르면 split 으로 기록한다. 다음 해 판정에서 차이가 날 수 있기 때문이다 (10-4).
+
+summary:
+  by_error_type: {"-": 1, K: 7, M: 1, D: 1}
+  by_topic: {base: 1, time: 2, term: 1, exclusion: 2, hold: 2, split: 2}
+  by_expected_status: {answer: 6, hold: 1, split: 2, answer_needs_data: 1}
