@@ -113,7 +113,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 19,900원 전액입니다. 프로 월간 구독을 2025-09-05에 결제해 3일 경과했고, 문서 생성 0건·로그인 2회로 미사용 상태입니다.
-    key_facts: [19,900, 전액]
+    key_facts: ["19,900", 전액]
     evidence: [refund_policy_v2:3.1, refund_policy_v2:2.1]
 
   - id: Q12
@@ -131,7 +131,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 199,000원 전액입니다. 2025-08-20 결제로 오늘까지 19일 경과이므로 연간 구독 30일 이내 전액 환불에 해당합니다.
-    key_facts: [199,000, 전액]
+    key_facts: ["199,000", 전액]
     evidence: [refund_policy_v2:4.1]
 
   - id: Q14
@@ -151,7 +151,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 179,000원 전액입니다. 결제일 2025-06-20 기준 20일 경과로 제1판의 14일은 지났지만, 제2판의 30일 이내 전액 환불이 고객에게 유리하므로 약관 9조 3항에 따라 전액 환불합니다.
-    key_facts: [179,000, 전액, 30일]
+    key_facts: ["179,000", 전액, 30일]
     evidence: [terms_of_service:9.3, refund_policy_v2:4.1, refund_policy_v1:3.1]
 
   - id: Q16
@@ -180,7 +180,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 가능합니다. 프로모션 코드 WELCOME50으로 2025-09-04 결제해 4일 경과했고 문서 0건·로그인 1회로 미사용이므로, 프로모션 결제의 전액 환불 기간 안에 해당해 결제액 4,950원을 환불합니다.
-    key_facts: [가능, 4,950]
+    key_facts: [가능, "4,950"]
     evidence: [refund_policy_v2:7.1, refund_policy_v2:3.1]
 
   - id: Q19
@@ -199,7 +199,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 가능합니다. 학생 요금제는 베이직 규정을 준용하므로 월간 7일 이내·미사용 요건을 적용합니다. 2025-09-02 결제로 6일 경과, 문서 0건·로그인 3회(3회 이하)로 미사용이므로 4,900원 전액 환불합니다.
-    key_facts: [가능, 4,900]
+    key_facts: [가능, "4,900"]
     evidence: [refund_policy_v2:6.1, refund_policy_v2:3.1, refund_policy_v2:2.1]
 
   - id: Q21
@@ -208,7 +208,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 가능합니다. 학생 인증이 2025-08-15에 만료된 뒤 2025-09-03에 베이직 가격(9,900원)으로 자동 갱신된 결제이므로, 갱신 후 7일 이내 요청 시 사용 여부와 관계없이 전액 환불하는 조항이 적용됩니다. 9,900원을 환불합니다.
-    key_facts: [가능, 9,900, 인증]
+    key_facts: [가능, "9,900", 인증]
     forbidden_facts: [환불 불가]
     evidence: [refund_policy_v2:6.2]
 
