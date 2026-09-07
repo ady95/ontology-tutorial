@@ -47,8 +47,8 @@ def answer_config2(question: str, as_of: date) -> dict:
 
 # ---------- 구성 3 ----------
 
-_CUST = re.compile(r"\bC0\d{2}\b")
-_INC = re.compile(r"\bINC-\d{2}\b")
+_CUST = re.compile(r"(?<![A-Za-z0-9])C0\d{2}(?!\d)")
+_INC = re.compile(r"(?<![A-Za-z0-9])INC-\d{2}(?!\d)")
 _DATE = re.compile(r"(20\d{2})-(\d{2})-(\d{2})")
 _SEATS = re.compile(r"(\d+)\s*(?:개|좌석)\s*(?:에서|→|->)\s*(\d+)\s*(?:개|좌석)")
 

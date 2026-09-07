@@ -12,7 +12,7 @@ import time
 from dataclasses import dataclass, field
 
 from dotenv import load_dotenv
-from openai import OpenAI
+from openai import BadRequestError, OpenAI
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 load_dotenv(os.environ.get("ENV_FILE", ROOT / ".env"))
@@ -22,6 +22,7 @@ EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small")
 EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "1536"))
 
 _client: OpenAI | None = None
+_supports_temperature = True   # 모델이 temperature 를 거부하면 False 로 바뀐다
 
 
 def client() -> OpenAI:
@@ -63,12 +64,19 @@ def chat(system: str, user: str, *, json_mode: bool = False, temperature: float 
     kwargs = {}
     if json_mode:
         kwargs["response_format"] = {"type": "json_object"}
-    resp = client().chat.completions.create(
-        model=LLM_MODEL,
-        temperature=temperature,
-        messages=[{"role": "system", "content": system}, {"role": "user", "content": user}],
-        **kwargs,
-    )
+    messages = [{"role": "system", "content": system}, {"role": "user", "content": user}]
+    global _supports_temperature
+    try:
+        if _supports_temperature:
+            resp = client().chat.completions.create(model=LLM_MODEL, temperature=temperature, messages=messages, **kwargs)
+        else:
+            resp = client().chat.completions.create(model=LLM_MODEL, messages=messages, **kwargs)
+    except BadRequestError as e:
+        # 일부 모델(추론 모델 계열)은 temperature 를 받지 않는다 → 기본값으로 재시도하고 이후 호출부터 생략
+        if "temperature" not in str(e):
+            raise
+        _supports_temperature = False
+        resp = client().chat.completions.create(model=LLM_MODEL, messages=messages, **kwargs)
     usage.calls += 1
     usage.prompt_tokens += resp.usage.prompt_tokens
     usage.completion_tokens += resp.usage.completion_tokens

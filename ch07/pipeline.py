@@ -69,10 +69,10 @@ def analyze(question: str, as_of: date) -> dict:
     user = f"오늘: {as_of}\n\n용어 사전:\n{glossary_text()}\n\n질문: {question}"
     out = llm.chat_json(ANALYZE_SYSTEM, user)
     # 정규식으로 보정 (LLM 이 놓친 ID)
-    m = re.search(r"\bC0\d{2}\b", question)
+    m = re.search(r"(?<![A-Za-z0-9])C0\d{2}(?!\d)", question)
     if m and not out.get("customer_id"):
         out["customer_id"] = m.group()
-    m = re.search(r"\bINC-\d{2}\b", question)
+    m = re.search(r"(?<![A-Za-z0-9])INC-\d{2}(?!\d)", question)
     if m and not out.get("incident_id"):
         out["incident_id"] = m.group()
     return out

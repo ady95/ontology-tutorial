@@ -76,7 +76,7 @@ questions:
     needs_data: false
     expected_status: answer
     answer: 아니요. 줄어든 좌석은 다음 결제 주기부터 반영되며 현재 주기의 차액은 환불하지 않습니다.
-    key_facts: [다음 결제 주기, 환불하지 않]
+    key_facts: [다음 결제 주기, "환불하지 않|환불되지 않|환불은 없|환불이 없"]
     evidence: [refund_policy_v2:5.1]
 
   - id: Q08
@@ -103,7 +103,7 @@ questions:
     needs_data: false
     expected_status: answer
     answer: 가능합니다. 현재 규정(제2판)에서는 프로모션 결제도 전액 환불 기간(월간 7일·미사용) 안에서는 환불할 수 있습니다. 제1판의 "프로모션 환불 불가"는 2025-06-30까지 결제분에만 해당합니다.
-    key_facts: [가능, 7일]
+    key_facts: ["가능|환불됩니다|환불할 수 있|환불받을 수 있", 7일]
     forbidden_facts: [환불 불가]
     evidence: [refund_policy_v2:7.1, refund_policy_v2:3.1]
 
@@ -236,7 +236,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 불가능합니다. 2025-08-01 약관 위반으로 계정이 정지된 상태이므로 잔여 기간에 대해 환불하지 않습니다.
-    key_facts: [불가, 정지]
+    key_facts: ["환불 불가|환불하지 않|환불되지 않|환불 대상이 아|환불할 수 없", 정지]
     evidence: [refund_policy_v2:7.2, terms_of_service:6.2]
 
   - id: Q25

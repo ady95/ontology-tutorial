@@ -5,12 +5,13 @@
 {"status": "answer"|"hold", "evidence": [...], "contexts": [...]} 를 가질 수 있습니다.
 
 채점 규칙 (규칙 기반, LLM 없음 → 재현 가능·무료):
-  1. key_facts 가 모두 답변에 포함되면 정답 후보
+  1. key_facts 가 모두 답변에 포함되면 정답 후보 ('표현1|표현2' 는 동의 표현: 하나만 있어도 충족)
   2. forbidden_facts 중 하나라도 포함되면 오답
   3. numeric_answer 가 있으면 답변의 숫자 중 tolerance 안의 값이 있어야 함
   4. expected_status 가 hold 인 질문은 답변이 확인 요청·보류 성격이어야 함 (key_facts 로 표현)
 
-실행 예:  python -m common.evaluate results/config1.jsonl   (저장된 결과 재채점)
+실행 예:  python -m common.evaluate results/config1.jsonl            (저장된 결과 재채점, 화면 출력만)
+          python -m common.evaluate results/config1.jsonl --rewrite  (재채점 결과를 파일에 반영)
 """
 from __future__ import annotations
 
@@ -57,7 +58,8 @@ def _numbers(s: str) -> list[float]:
 
 def grade(q: dict, answer: str) -> dict:
     a = _norm(answer or "")
-    missing = [k for k in q.get("key_facts", []) if _norm(k) not in a]
+    # key_facts 항목은 '표현1|표현2' 처럼 동의 표현을 '|' 로 나열할 수 있다 (하나라도 있으면 충족)
+    missing = [k for k in q.get("key_facts", []) if not any(_norm(alt) in a for alt in str(k).split("|"))]
     forbidden = [k for k in q.get("forbidden_facts", []) if _norm(k) in a]
     numeric_ok = True
     if "numeric_answer" in q:
@@ -159,12 +161,22 @@ def compare(*config_names: str) -> str:
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        rows = [json.loads(l) for l in pathlib.Path(sys.argv[1]).read_text(encoding="utf-8").splitlines() if l.strip()]
+        path = pathlib.Path(sys.argv[1])
+        rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
         _, qs = load_questions()
         qmap = {q["id"]: q for q in qs}
+        changed = []
         for r in rows:
+            before = r["correct"]
             r.update(grade(qmap[r["id"]], r["answer"]))
+            if before != r["correct"]:
+                changed.append(f"{r['id']}:{'X→O' if r['correct'] else 'O→X'}")
         print(summary(rows))
+        if changed:
+            print("판정 변경:", ", ".join(changed))
+        if "--rewrite" in sys.argv:
+            path.write_text("\n".join(json.dumps(r, ensure_ascii=False) for r in rows) + "\n", encoding="utf-8")
+            print("파일 갱신:", path)
     else:
         as_of, qs = load_questions()
         print(f"기준일 {as_of}, 질문 {len(qs)}개")
