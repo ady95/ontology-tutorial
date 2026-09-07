@@ -1,0 +1,15 @@
+services:
+  db:
+    # PostgreSQL 16 + pgvector + Apache AGE 가 모두 포함된 이미지
+    image: apache/age:PG16_latest
+    container_name: ontology-db
+    environment:
+      POSTGRES_USER: ontology
+      POSTGRES_PASSWORD: ontology
+      POSTGRES_DB: ontology
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

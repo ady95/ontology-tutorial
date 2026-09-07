@@ -1,0 +1,171 @@
+# 판단 규칙 (05장 산출물)
+# 조항(Clause)이 표현하는 판단을 조건·예외·시점·근거로 구조화한다.
+# 온톨로지(model.yaml)가 "무엇이 무엇인가"를 정의한다면, 이 파일은 "언제 어떤 결론이 나는가"를 정의한다.
+# 7장의 파이프라인은 이 규칙을 코드(ch07/rules.py)로 평가하고 LLM에는 결과와 근거만 전달한다.
+#
+# 각 규칙:
+#   requires: 결론을 내리기 위해 반드시 확인되어야 하는 사실. 하나라도 unknown 이면 결론 대신 hold(보류)
+#   when:     조건 (모두 참이면 적용)
+#   result:   결론
+#   evidence: 근거 조항
+#   overrides / overridden_by: 예외·우선순위
+
+policy_versions:
+  - id: refund_policy_v1
+    valid_from: 2024-01-01
+    valid_to: 2025-06-30
+  - id: refund_policy_v2
+    valid_from: 2025-07-01
+    valid_to: null
+
+# 0. 적용 규정 판 결정 (시점 규칙)
+version_selection:
+  base: "결제 완료일(paid_at)이 유효기간 안에 있는 판"          # 약관 2조 2항, 운영 매뉴얼 2절 1항
+  renewal: "자동 갱신 결제는 갱신 결제일을 결제 완료일로 본다"   # 약관 3조 3항, 운영 매뉴얼 2절 3항
+  favorable_override:                                          # 약관 9조 3항
+    description: "변경된 규정이 고객에게 더 유리하면, 변경 시행일 이후의 요청에는 변경된 규정을 적용한다"
+    how: "두 판으로 각각 계산해 고객에게 유리한 결과를 택하고 '약관 9조 3항 적용'을 기록"
+    evidence: [terms_of_service:9.3, ops_manual:2.2]
+
+rules:
+  # 1. 요청 종류 판별 (의미 규칙)
+  - id: classify_request
+    requires: [request_type]
+    note: "'취소'라는 말은 해지·환불·결제 취소 중 무엇인지 확인 전에는 판단하지 않는다"
+    evidence: [ops_manual:4, terms_of_service:4]
+
+  - id: payment_reversal
+    when: [request_type == PaymentReversal, hours_since_payment <= 24]
+    requires: [paid_at_time]
+    result: "승인 취소 처리. 환불 규정 미적용"
+    evidence: [terms_of_service:4.3]
+
+  - id: cancellation_no_refund
+    when: [request_type == Cancellation]
+    result: "다음 주기부터 갱신 중단. 금액 반환 없음. 현재 주기 종료까지 이용 가능"
+    evidence: [terms_of_service:4.1, refund_policy_v2:2.3]
+
+  # 2. 환불 자격 — 제외 조건이 먼저
+  - id: exclude_suspended
+    when: [request_type == Refund, account_status == suspended]
+    result: "환불 불가 (계정 정지)"
+    evidence: [refund_policy_v2:7.2, refund_policy_v1:5.2]
+    priority: 100
+
+  - id: exclude_non_admin_team
+    when: [request_type == Refund, customer_type == team, requester_role != admin]
+    requires: [requester_role]
+    result: "처리 불가. 팀 관리자가 요청해야 함"
+    evidence: [terms_of_service:8.1, terms_of_service:8.2]
+    priority: 100
+
+  - id: promo_v1_no_refund
+    when: [request_type == Refund, promo_code != null, policy_version == refund_policy_v1]
+    result: "환불 불가 (1판: 프로모션 결제 환불 제외)"
+    evidence: [refund_policy_v1:5.1]
+    priority: 90
+    note: "2판이 유리한지(전액 환불 기간 내인지) favorable_override 로 함께 검토"
+
+  - id: promo_v2_window_only
+    when: [request_type == Refund, promo_code != null, policy_version == refund_policy_v2]
+    result: "전액 환불 기간 안이면 전액 환불, 지나면 환불 불가"
+    evidence: [refund_policy_v2:7.1]
+    priority: 90
+
+  # 3. 월간 구독
+  - id: monthly_full_refund
+    when: [request_type == Refund, billing_cycle == monthly, days_since_payment <= 7, unused == true]
+    requires: [paid_at, docs_created, logins]
+    result: "전액 환불"
+    evidence: [refund_policy_v2:3.1, refund_policy_v2:2.1]
+    note: "1판에는 '미사용' 정의가 없음 → 1판 적용 건은 사용 여부 판단 기준을 별도 확인"
+
+  - id: monthly_no_refund
+    when: [request_type == Refund, billing_cycle == monthly, "days_since_payment > 7 or unused == false"]
+    requires: [paid_at, docs_created, logins]
+    result: "환불 불가. 해지 안내"
+    evidence: [refund_policy_v2:3.2]
+
+  - id: student_expired_renewal
+    when: [request_type == Refund, plan == student, student_verified_until < paid_at, is_renewal == true, days_since_payment <= 7]
+    result: "사용 여부와 관계없이 전액 환불 (베이직 가격으로 갱신된 결제)"
+    evidence: [refund_policy_v2:6.2]
+    overrides: [monthly_no_refund]
+
+  - id: student_applies_basic
+    when: [plan == student]
+    result: "베이직 요금제의 환불 규정을 준용"
+    evidence: [refund_policy_v2:6.1]
+    note: "모델의 applies_mutatis_mutandis 관계. 3조·4조를 그대로 적용"
+
+  # 4. 연간 구독
+  - id: yearly_full_refund
+    when: [request_type == Refund, billing_cycle == yearly, days_since_payment <= full_refund_days]
+    requires: [paid_at, policy_version]
+    params: {full_refund_days: {refund_policy_v1: 14, refund_policy_v2: 30}}
+    result: "전액 환불"
+    evidence: [refund_policy_v2:4.1, refund_policy_v1:3.1]
+
+  - id: yearly_prorated_refund
+    when: [request_type == Refund, billing_cycle == yearly, days_since_payment > full_refund_days]
+    requires: [paid_at, amount, current_period_end, monthly_price]
+    formula:
+      refund_policy_v1: "amount * remaining_days / total_days * 0.9"
+      refund_policy_v2: "amount * remaining_days / total_days - (monthly_price*12 - amount) * used_days / total_days"
+    definitions:
+      remaining_days: "요청일 다음 날부터 구독 종료일까지"
+      used_days: "total_days - remaining_days"
+    result: "일할 환불 (1판: 위약금 10% 공제 / 2판: 위약금 없음, 연간 할인분 사용 비례 환수)"
+    evidence: [refund_policy_v2:4.2, refund_policy_v2:4.4, refund_policy_v1:3.2]
+
+  # 5. 좌석
+  - id: seat_decrease
+    when: [request_type == SeatChange, seats_new < seats_current]
+    result: "다음 결제 주기부터 반영. 현재 주기 차액 환불 없음"
+    evidence: [refund_policy_v2:5.1]
+
+  - id: seat_minimum
+    when: [request_type == SeatChange, plan == team, seats_new < 3]
+    result: "불가. 프로 요금제로 전환 필요"
+    evidence: [refund_policy_v2:5.3]
+    overrides: [seat_decrease]
+
+  # 6. 장애 크레딧
+  - id: incident_credit
+    when: [incident.responsibility == company, incident.is_planned_maintenance == false, incident.duration_hours >= 24]
+    formula: "monthly_equivalent_fee * duration_hours / 720"
+    definitions:
+      monthly_equivalent_fee: "월간 결제는 결제액, 연간 결제는 결제액/12"
+    result: "크레딧 지급, 다음 결제에서 차감"
+    evidence: [refund_policy_v2:8.1, ops_manual:5.2]
+
+  - id: incident_no_credit_short
+    when: [incident.duration_hours < 24]
+    result: "보상 대상 아님"
+    evidence: [refund_policy_v2:8.1, ops_manual:5.1]
+
+  - id: maintenance_not_incident
+    when: [incident.is_planned_maintenance == true]
+    result: "장애가 아니므로 보상 대상 아님"
+    evidence: [terms_of_service:7.2, ops_manual:5.3]
+    overrides: [incident_credit]
+
+  - id: credit_cash_if_cancel_scheduled
+    when: [credit > 0, subscription.status == cancel_scheduled, policy_version == refund_policy_v2]
+    result: "크레딧 해당 금액을 현금 환불"
+    evidence: [refund_policy_v2:8.2]
+    note: "1판(6조 2항)은 현금 환불 없음 — 시점에 따라 결론이 달라지는 조항"
+
+  # 7. 승인 권한
+  - id: approval_authority
+    when: [refund_amount != null]
+    table:
+      - {max: 100000, approver: 상담원}
+      - {max: 500000, approver: 팀장}
+      - {max: null, approver: 운영 책임자}
+    evidence: [ops_manual:3]
+
+# 보류(hold) 규칙: requires 중 unknown 이 있으면 결론 대신 확인 요청을 낸다
+hold_policy:
+  message: "다음 정보가 확인되지 않아 결론을 보류합니다: {missing}"
+  evidence: [ops_manual:1]

@@ -1,0 +1,4 @@
+incident_id,started_at,ended_at,duration_hours,responsibility,is_planned_maintenance,announced_at
+INC-01,2025-08-10 10:00,2025-08-11 16:00,30,company,false,
+INC-02,2025-08-24 01:00,2025-08-24 07:00,6,company,true,2025-08-20 09:00
+INC-03,2025-09-02 08:00,2025-09-02 20:00,12,company,false,

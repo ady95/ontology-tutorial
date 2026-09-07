@@ -1,0 +1,15 @@
+customer_id,display_name,customer_type,is_student,account_status,suspended_at,suspension_reason
+C001,고객A,individual,false,active,,
+C002,고객B,individual,false,active,,
+C003,고객C,individual,false,active,,
+C004,고객D,individual,false,active,,
+C005,고객E팀,team,false,active,,
+C006,고객F,individual,false,active,,
+C007,고객G,individual,false,active,,
+C008,고객H,individual,true,active,,
+C009,고객I,individual,true,active,,
+C010,고객J,individual,false,active,,
+C011,고객K팀,team,false,active,,
+C012,고객L,individual,false,suspended,2025-08-01,약관 6조 1항 위반(자동화 도구 대량 접근)
+C013,고객M,individual,false,active,,
+C014,고객N,individual,false,active,,

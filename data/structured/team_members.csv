@@ -1,0 +1,10 @@
+customer_id,member_name,role
+C005,관리자E,admin
+C005,팀원E1,member
+C005,팀원E2,member
+C005,팀원E3,member
+C005,팀원E4,member
+C011,관리자K,admin
+C011,팀원K1,member
+C011,팀원K2,member
+C011,팀원K3,member

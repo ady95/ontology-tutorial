@@ -1,0 +1,15 @@
+subscription_id,customer_id,plan,billing_cycle,seats,first_paid_at,current_period_start,current_period_end,promo_code,status,student_verified_until
+S001,C001,pro,monthly,1,2025-09-05,2025-09-05,2025-10-04,,active,
+S002,C002,pro,monthly,1,2025-03-03,2025-09-03,2025-10-02,,active,
+S003,C003,pro,yearly,1,2025-08-20,2025-08-20,2026-08-19,,active,
+S004,C004,pro,yearly,1,2025-06-20,2025-06-20,2026-06-19,,active,
+S005,C005,team,yearly,5,2025-07-15,2025-07-15,2026-07-14,,active,
+S006,C006,basic,monthly,1,2025-09-04,2025-09-04,2025-10-03,WELCOME50,active,
+S007,C007,pro,monthly,1,2025-09-02,2025-09-02,2025-10-01,,active,
+S008,C008,student,monthly,1,2025-09-02,2025-09-02,2025-10-01,,active,2026-03-01
+S009,C009,student,monthly,1,2025-03-03,2025-09-03,2025-10-02,,active,2025-08-15
+S010,C010,pro,yearly,1,2025-04-10,2025-04-10,2026-04-09,SPRING20,active,
+S011,C011,team,monthly,4,2025-05-25,2025-08-25,2025-09-24,,active,
+S012,C012,pro,yearly,1,2025-03-01,2025-03-01,2026-02-28,,active,
+S013,C013,pro,monthly,1,2025-06-10,2025-08-10,2025-09-09,,cancel_scheduled,
+S014,C014,basic,monthly,1,2025-06-25,2025-08-25,2025-09-24,,active,

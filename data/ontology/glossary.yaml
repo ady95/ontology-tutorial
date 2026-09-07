@@ -1,0 +1,87 @@
+# 용어 사전 (04-2 산출물)
+# 같은 말이 문서·부서마다 다른 뜻으로 쓰이는 지점을 정리한다.
+# canonical: 이 책·시스템에서 쓰는 표준 용어(개념 id)
+# surface_forms: 실제 문서·고객 발화에 나타나는 표현과 그 출처
+
+terms:
+  - canonical: CancellationRequest
+    label: 해지
+    definition: 다음 결제 주기부터 구독을 갱신하지 않는 것. 금액 반환 없음.
+    surface_forms:
+      - {form: 해지, source: 약관 4조 1항 / 환불 규정 2판 2조 3항}
+      - {form: 구독 취소, source: FAQ "구독을 취소하고 싶어요" — 고객용 표현}
+      - {form: 취소해 주세요, source: 고객 발화 — 해지·환불·결제 취소 중 확인 필요}
+    confusable_with: [RefundRequest, PaymentReversalRequest]
+
+  - canonical: RefundRequest
+    label: 환불
+    definition: 이미 결제된 금액의 전부 또는 일부를 돌려주는 것. 환불 규정 적용.
+    surface_forms:
+      - {form: 환불, source: 환불 규정}
+      - {form: 돈이 돌아오나요, source: 고객 발화}
+    confusable_with: [CancellationRequest, Credit]
+
+  - canonical: PaymentReversalRequest
+    label: 결제 취소
+    definition: 결제 완료 후 24시간 이내의 결제 철회. 승인 취소로 처리, 환불 규정 미적용.
+    surface_forms:
+      - {form: 결제 취소, source: 약관 4조 3항 / 운영 매뉴얼 4절}
+      - {form: 취소, source: 고객 발화}
+    confusable_with: [CancellationRequest, RefundRequest]
+
+  - canonical: Credit
+    label: 크레딧
+    definition: 다음 결제에서 차감되는 보상. 현금 반환이 아님. 해지 신청 상태면 현금 환불(2판 8조 2항).
+    surface_forms:
+      - {form: 크레딧, source: 환불 규정 / FAQ}
+      - {form: 보상, source: 고객 발화 / FAQ}
+    confusable_with: [RefundRequest]
+
+  - canonical: Unused
+    label: 미사용
+    definition: 해당 결제 주기에 새로 생성한 문서 0건이고 로그인 3회 이하 (2판 2조 1항). 1판에는 정의가 없음.
+    surface_forms:
+      - {form: 서비스를 사용하지 않은 경우, source: 환불 규정 1판 2조 1항 — 정의 없음}
+      - {form: 서비스를 이용하지 않았다면, source: FAQ}
+      - {form: 한 번도 쓰지 않았는데, source: 고객 발화}
+    note: 사용량 기록이 없으면 미사용이 아니라 "미확인"
+
+  - canonical: paid_at
+    label: 결제 완료일
+    definition: 결제가 완료된 날. 계약 성립일이자 환불 기간·적용 규정 판의 기준일 (약관 2조 2항).
+    surface_forms:
+      - {form: 결제 완료일, source: 환불 규정}
+      - {form: 계약 성립일, source: 약관 2조}
+      - {form: 결제일, source: 운영 매뉴얼 / 고객 발화}
+      - {form: 갱신 결제일, source: 운영 매뉴얼 2절 3항 — 자동 갱신은 갱신일이 기준}
+    confusable_with: [current_period_start]
+
+  - canonical: billing_cycle
+    label: 결제 주기
+    definition: 월간 또는 연간으로 요금이 청구되는 단위 기간 (약관 1조 3항).
+    surface_forms:
+      - {form: 결제 주기, source: 약관 / 환불 규정}
+      - {form: 결제 기간, source: FAQ}
+      - {form: 이번 달, source: 고객 발화 — 월간 구독의 현재 주기}
+
+  - canonical: full_refund_window
+    label: 전액 환불 기간
+    definition: 결제 완료일로부터 전액 환불이 가능한 기간. 월간 7일(미사용 조건), 연간 30일(2판) / 14일(1판).
+    surface_forms:
+      - {form: 환불 가능 기간, source: FAQ}
+      - {form: 전액 환불 기간, source: 환불 규정 2판 7조 1항}
+
+  - canonical: Seat
+    label: 좌석
+    definition: 팀 요금제에서 서비스를 이용할 수 있는 사용자 계정 1개 (약관 1조 4항).
+    surface_forms:
+      - {form: 좌석, source: 약관 / 요금 안내}
+      - {form: 팀원, source: FAQ "팀원이 나갔는데" — 사람이 아니라 좌석 수 문제}
+
+  - canonical: Outage
+    label: 서비스 장애
+    definition: 회사 책임으로 서비스가 중단된 사건. 공지된 정기 점검은 장애가 아님 (약관 7조 2항).
+    surface_forms:
+      - {form: 장애, source: 환불 규정 / 운영 매뉴얼}
+      - {form: 서비스가 안 됐던 시간, source: FAQ / 고객 발화 — 점검 포함 가능}
+    confusable_with: [PlannedMaintenance]

@@ -1,0 +1,296 @@
+# 업무 질문 30개 — 책 전체의 평가 세트
+#
+# as_of: 모든 질문의 기준일(오늘)
+# error_type: 기본 RAG(구성 1)에서 예상되는 주된 오류 유형
+#   R = 검색 문제 (근거 문서를 못 찾거나 잘못 찾음)
+#   D = 데이터 문제 (답에 필요한 정형 정보가 문서에 없음)
+#   M = 의미 문제 (같은 용어가 다른 뜻, 개념 경계·준용 관계)
+#   K = 규칙 문제 (조건·예외·시점 판단이 적용되지 않음)
+#   "-" = 기본 RAG로도 답할 수 있어야 하는 기준선 질문
+# key_facts: 채점 시 답변에 반드시 들어 있어야 하는 사실 (모두 포함 = 정답)
+# evidence: 근거 조항 id (문서id:조항)
+# needs_data: 정형 데이터 조회 없이는 답할 수 없는 질문
+# expected_status: answer(결론) / hold(판단 보류·추가 확인)
+
+as_of: 2025-09-08
+
+questions:
+  - id: Q01
+    question: 월간 구독을 결제한 지 5일 지났고 한 번도 쓰지 않았는데 환불받을 수 있나요?
+    error_type: "-"
+    needs_data: false
+    expected_status: answer
+    answer: 가능합니다. 결제 완료일로부터 7일 이내이고 미사용 상태이므로 결제 금액 전액을 환불합니다.
+    key_facts: [전액 환불, 7일]
+    evidence: [refund_policy_v2:3.1]
+
+  - id: Q02
+    question: 연간 구독은 결제하고 며칠 안에 요청해야 전액 환불되나요?
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 현재 규정(제2판, 2025-07-01 시행)에서는 30일입니다. 2025-06-30 이전 결제분은 제1판의 14일이 기본이지만 약관 9조 3항에 따라 유리한 30일이 적용됩니다.
+    key_facts: [30일]
+    forbidden_facts: [14일이 현재 기준]
+    evidence: [refund_policy_v2:4.1, terms_of_service:9.3]
+
+  - id: Q03
+    question: 구독을 해지하면 남은 기간의 돈이 돌아오나요?
+    error_type: M
+    needs_data: false
+    expected_status: answer
+    answer: 아니요. 해지는 다음 결제 주기부터 갱신하지 않는 것이며 금액은 반환되지 않습니다. 현재 주기가 끝날 때까지 이용할 수 있습니다. 금액 반환은 환불 규정에 따른 별도 절차입니다.
+    key_facts: [반환되지 않, 다음 결제 주기]
+    evidence: [terms_of_service:4.1, refund_policy_v2:2.3]
+
+  - id: Q04
+    question: 어제 결제했는데 취소하고 싶어요. 환불 규정이 적용되나요?
+    error_type: M
+    needs_data: false
+    expected_status: hold
+    answer: 결제 완료 후 24시간 이내라면 결제 취소로 처리되어 환불 규정을 적용하지 않고 승인 취소합니다. 24시간이 지났다면 환불 규정이 적용됩니다. 정확한 결제 시각을 확인해야 합니다.
+    key_facts: [24시간, 결제 취소]
+    evidence: [terms_of_service:4.3, ops_manual:4]
+
+  - id: Q05
+    question: 회사 책임으로 서비스가 30시간 중단됐습니다. 보상은 어떻게 받나요?
+    error_type: "-"
+    needs_data: false
+    expected_status: answer
+    answer: 연속 24시간 이상 중단이므로 중단 시간에 해당하는 요금을 크레딧으로 지급하며, 크레딧은 다음 결제 주기 요금에서 차감됩니다.
+    key_facts: [크레딧, 다음 결제]
+    evidence: [refund_policy_v2:8.1, refund_policy_v2:8.2]
+
+  - id: Q06
+    question: 장애 보상 크레딧을 현금으로 받을 수 있나요?
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 원칙적으로 크레딧은 다음 결제에서 차감되며 현금으로 주지 않습니다. 단, 현재 규정(제2판)에서는 해지를 신청한 상태라면 크레딧 금액을 현금으로 환불합니다.
+    key_facts: [해지, 현금]
+    evidence: [refund_policy_v2:8.2]
+
+  - id: Q07
+    question: 팀 요금제 좌석을 5개에서 3개로 줄이면 차액이 환불되나요?
+    error_type: "-"
+    needs_data: false
+    expected_status: answer
+    answer: 아니요. 줄어든 좌석은 다음 결제 주기부터 반영되며 현재 주기의 차액은 환불하지 않습니다.
+    key_facts: [다음 결제 주기, 환불하지 않]
+    evidence: [refund_policy_v2:5.1]
+
+  - id: Q08
+    question: 팀 요금제를 2좌석으로 줄일 수 있나요?
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 불가능합니다. 팀 요금제 최소 좌석은 3좌석이며, 그 미만으로 줄이려면 프로 요금제로 전환해야 합니다.
+    key_facts: [3좌석, 프로]
+    evidence: [refund_policy_v2:5.3, pricing_guide:팀 요금제 좌석]
+
+  - id: Q09
+    question: 학생 요금제를 연간으로 결제했는데 환불 기준이 어떻게 되나요?
+    error_type: M
+    needs_data: false
+    expected_status: answer
+    answer: 학생 요금제 환불은 베이직 요금제 규정을 준용하므로 연간 구독 조항이 적용됩니다. 결제 후 30일 이내 요청 시 전액 환불, 이후에는 잔여 기간을 일할 계산하여 환불하되 연간 할인분을 사용 기간에 비례해 환수합니다.
+    key_facts: [준용, 30일, 일할]
+    evidence: [refund_policy_v2:6.1, refund_policy_v2:4.1, refund_policy_v2:4.2]
+
+  - id: Q10
+    question: 프로모션 코드로 월간 결제한 지 3일 됐고 아직 사용하지 않았습니다. 환불되나요?
+    error_type: K
+    needs_data: false
+    expected_status: answer
+    answer: 가능합니다. 현재 규정(제2판)에서는 프로모션 결제도 전액 환불 기간(월간 7일·미사용) 안에서는 환불할 수 있습니다. 제1판의 "프로모션 환불 불가"는 2025-06-30까지 결제분에만 해당합니다.
+    key_facts: [가능, 7일]
+    forbidden_facts: [환불 불가]
+    evidence: [refund_policy_v2:7.1, refund_policy_v2:3.1]
+
+  - id: Q11
+    question: 고객 C001이 오늘 환불을 요청하면 얼마를 환불하나요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 19,900원 전액입니다. 프로 월간 구독을 2025-09-05에 결제해 3일 경과했고, 문서 생성 0건·로그인 2회로 미사용 상태입니다.
+    key_facts: [19,900, 전액]
+    evidence: [refund_policy_v2:3.1, refund_policy_v2:2.1]
+
+  - id: Q12
+    question: 고객 C002가 이번 달 결제분 환불을 요청했습니다. 어떻게 처리하나요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 환불 불가입니다. 2025-09-03 결제 후 문서 4건 생성·로그인 9회로 사용 상태이므로 월간 전액 환불 요건(미사용)을 충족하지 않습니다. 원하면 해지를 안내해 다음 주기부터 청구를 중단합니다.
+    key_facts: [환불 불가, 해지]
+    evidence: [refund_policy_v2:3.2, refund_policy_v2:2.1]
+
+  - id: Q13
+    question: 고객 C003이 연간 구독 환불을 요청하면 얼마를 환불하나요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 199,000원 전액입니다. 2025-08-20 결제로 오늘까지 19일 경과이므로 연간 구독 30일 이내 전액 환불에 해당합니다.
+    key_facts: [199,000, 전액]
+    evidence: [refund_policy_v2:4.1]
+
+  - id: Q14
+    question: 고객 C004가 오늘 환불을 요청하면 어떤 규정을 적용하고 얼마를 환불하나요?
+    error_type: K
+    needs_data: true
+    expected_status: answer
+    answer: 결제일이 2025-06-20이므로 기본은 제1판이지만, 제2판(위약금 없음)이 더 유리하므로 약관 9조 3항에 따라 제2판 4조 2항을 적용합니다. 잔여 284일 일할 환불 139,277원에서 연간 할인 환수분 7,945원을 빼 약 131,300원을 환불합니다. 제1판을 적용했다면 위약금 10%를 공제해 약 125,300원입니다.
+    key_facts: [제2판, 9조 3항, 위약금 없]
+    numeric_answer: 131332
+    numeric_tolerance: 500
+    evidence: [terms_of_service:9.3, refund_policy_v2:4.2, refund_policy_v2:4.4, ops_manual:2.2]
+
+  - id: Q15
+    question: 고객 C004가 2025-07-10에 환불을 요청했다면 얼마를 환불했어야 하나요?
+    error_type: K
+    needs_data: true
+    expected_status: answer
+    answer: 179,000원 전액입니다. 결제일 2025-06-20 기준 20일 경과로 제1판의 14일은 지났지만, 제2판의 30일 이내 전액 환불이 고객에게 유리하므로 약관 9조 3항에 따라 전액 환불합니다.
+    key_facts: [179,000, 전액, 30일]
+    evidence: [terms_of_service:9.3, refund_policy_v2:4.1, refund_policy_v1:3.1]
+
+  - id: Q16
+    question: 고객 C005가 좌석을 5개에서 3개로 줄이려고 합니다. 이번에 환불이 있나요? 언제 반영되나요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 환불은 없습니다. 좌석 축소는 다음 결제 주기인 2026-07-15부터 반영되며, 현재 주기(2025-07-15 ~ 2026-07-14)의 차액은 환불하지 않습니다.
+    key_facts: [환불 없, 2026-07-15]
+    evidence: [refund_policy_v2:5.1]
+
+  - id: Q17
+    question: 고객 C005가 연간 구독 전체 환불을 요청했습니다. 예상 환불액과 승인자는 누구인가요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 결제일 2025-07-15, 오늘까지 55일 경과로 30일이 지나 일할 환불입니다. 745,000원 기준 잔여 309일분 630,699원에서 연간 할인 환수분 22,860원을 빼 약 607,800원입니다. 50만원을 초과하므로 운영 책임자 승인이 필요합니다. 요청자가 팀 관리자인지도 확인해야 합니다.
+    key_facts: [운영 책임자, 일할]
+    numeric_answer: 607839
+    numeric_tolerance: 1500
+    evidence: [refund_policy_v2:4.2, ops_manual:3, terms_of_service:8.1]
+
+  - id: Q18
+    question: 고객 C006이 환불을 요청했습니다. 가능한가요? 얼마인가요?
+    error_type: K
+    needs_data: true
+    expected_status: answer
+    answer: 가능합니다. 프로모션 코드 WELCOME50으로 2025-09-04 결제해 4일 경과했고 문서 0건·로그인 1회로 미사용이므로, 프로모션 결제의 전액 환불 기간 안에 해당해 결제액 4,950원을 환불합니다.
+    key_facts: [가능, 4,950]
+    evidence: [refund_policy_v2:7.1, refund_policy_v2:3.1]
+
+  - id: Q19
+    question: 고객 C007이 환불을 요청했습니다. 어떻게 처리하나요?
+    error_type: K
+    needs_data: true
+    expected_status: hold
+    answer: 결론을 보류합니다. 2025-09-02 결제로 6일 경과라 기간 요건은 충족하지만, 사용량(문서 생성 수·로그인 횟수) 기록이 없어 미사용 여부를 판정할 수 없습니다. 사용량을 확인한 뒤 결정해야 합니다.
+    key_facts: [사용량, 확인]
+    forbidden_facts: [전액 환불합니다]
+    evidence: [refund_policy_v2:3.1, ops_manual:1]
+
+  - id: Q20
+    question: 학생 고객 C008이 환불을 요청했습니다. 가능한가요?
+    error_type: M
+    needs_data: true
+    expected_status: answer
+    answer: 가능합니다. 학생 요금제는 베이직 규정을 준용하므로 월간 7일 이내·미사용 요건을 적용합니다. 2025-09-02 결제로 6일 경과, 문서 0건·로그인 3회(3회 이하)로 미사용이므로 4,900원 전액 환불합니다.
+    key_facts: [가능, 4,900]
+    evidence: [refund_policy_v2:6.1, refund_policy_v2:3.1, refund_policy_v2:2.1]
+
+  - id: Q21
+    question: 고객 C009는 이번 달 문서 3개를 만들고 10번 로그인했는데 환불을 요청합니다. 가능한가요?
+    error_type: K
+    needs_data: true
+    expected_status: answer
+    answer: 가능합니다. 학생 인증이 2025-08-15에 만료된 뒤 2025-09-03에 베이직 가격(9,900원)으로 자동 갱신된 결제이므로, 갱신 후 7일 이내 요청 시 사용 여부와 관계없이 전액 환불하는 조항이 적용됩니다. 9,900원을 환불합니다.
+    key_facts: [가능, 9,900, 인증]
+    forbidden_facts: [환불 불가]
+    evidence: [refund_policy_v2:6.2]
+
+  - id: Q22
+    question: 고객 C010이 환불을 요청했습니다. 가능한가요?
+    error_type: K
+    needs_data: true
+    expected_status: answer
+    answer: 불가능합니다. 2025-04-10 프로모션 코드(SPRING20) 적용 연간 결제이므로 제1판 5조 1항에 따라 환불 대상이 아닙니다. 제2판을 적용해도 전액 환불 기간 30일이 지났으므로 결과는 같습니다.
+    key_facts: [불가, 프로모션]
+    evidence: [refund_policy_v1:5.1, refund_policy_v2:7.1]
+
+  - id: Q23
+    question: 고객 C011 팀의 구성원 팀원K1이 환불을 요청했습니다. 처리할 수 있나요?
+    error_type: D
+    needs_data: true
+    expected_status: hold
+    answer: 처리할 수 없습니다. 팀 요금제의 환불 요청은 팀 관리자(관리자K)만 할 수 있으므로 관리자를 통해 다시 요청하도록 안내합니다.
+    key_facts: [관리자]
+    evidence: [terms_of_service:8.1, terms_of_service:8.2]
+
+  - id: Q24
+    question: 고객 C012가 잔여 기간 환불을 요청했습니다. 가능한가요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 불가능합니다. 2025-08-01 약관 위반으로 계정이 정지된 상태이므로 잔여 기간에 대해 환불하지 않습니다.
+    key_facts: [불가, 정지]
+    evidence: [refund_policy_v2:7.2, terms_of_service:6.2]
+
+  - id: Q25
+    question: 2025-08-10 장애에 대해 고객 C002가 받을 크레딧은 얼마인가요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 약 829원입니다. INC-01은 회사 책임 30시간 장애로 보상 대상이며, 프로 월간 요금 19,900원 기준 19,900 × 30 ÷ 720 = 829원을 크레딧으로 지급해 다음 결제에서 차감합니다.
+    key_facts: [크레딧, 30시간]
+    numeric_answer: 829
+    numeric_tolerance: 5
+    evidence: [refund_policy_v2:8.1, ops_manual:5.2]
+
+  - id: Q26
+    question: 2025-09-02 장애는 보상 대상인가요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 아니요. INC-03은 12시간 중단으로 연속 24시간 미만이므로 보상 대상이 아닙니다.
+    key_facts: [아니, 24시간]
+    evidence: [refund_policy_v2:8.1, ops_manual:5.1]
+
+  - id: Q27
+    question: 2025-08-24 새벽에 서비스가 안 됐는데 보상받을 수 있나요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 아니요. INC-02는 2025-08-20에 공지된 정기 점검(6시간)으로 약관상 장애로 보지 않으므로 보상 대상이 아닙니다.
+    key_facts: [정기 점검, 아니]
+    evidence: [terms_of_service:7.2, ops_manual:5.3]
+
+  - id: Q28
+    question: 고객 C013이 2025-08-10 장애 크레딧을 받게 되면 어떻게 지급하나요?
+    error_type: K
+    needs_data: true
+    expected_status: answer
+    answer: 현금으로 환불합니다. C013은 해지를 신청한 상태(다음 주기 갱신 없음)이므로 크레딧을 다음 결제에서 차감할 수 없어 제2판 8조 2항에 따라 크레딧 해당 금액(19,900 × 30 ÷ 720 = 829원)을 현금 환불합니다.
+    key_facts: [현금, 해지]
+    evidence: [refund_policy_v2:8.2, ops_manual:5.2]
+
+  - id: Q29
+    question: 환불 규정 제2판 시행으로 다시 점검해야 하는 기존 구독은 어느 것인가요?
+    error_type: D
+    needs_data: true
+    expected_status: answer
+    answer: 2025-06-30 이전에 결제되어 아직 유효한 구독 중 제2판 조항이 유리하게 적용될 수 있는 건입니다. 대상은 C004(프로 연간, 2025-06-20 결제, 위약금 폐지·30일 조항 해당)입니다. C010은 프로모션 결제로 전액 환불 기간이 이미 지났고, C012는 계정 정지로 환불 제외이며, C014·C002·C009·C013의 월간 결제는 갱신 시 새 결제일이 기준이 되어 재점검 대상이 아닙니다.
+    key_facts: [C004]
+    evidence: [ops_manual:6.2, terms_of_service:9.3, terms_of_service:3.3]
+
+  - id: Q30
+    question: 환불 규정 4조(연간 구독의 환불)가 개정되면 함께 점검해야 하는 문서와 절차는 무엇인가요?
+    error_type: R
+    needs_data: false
+    expected_status: answer
+    answer: 운영 매뉴얼의 적용 판 결정 절차(2절)와 규정 변경 재점검 절차(6절), FAQ의 "결제하고 바로 환불받을 수 있나요" 항목, 상담 스크립트, 그리고 진행 중인 환불 요청과 개정 전 결제 연간 구독을 점검해야 합니다.
+    key_facts: [운영 매뉴얼, FAQ]
+    evidence: [ops_manual:6, faq:결제와 구독]

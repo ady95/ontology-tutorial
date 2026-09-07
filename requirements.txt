@@ -1,0 +1,6 @@
+psycopg[binary]>=3.1
+pgvector>=0.2.5
+openai>=1.40
+python-dotenv>=1.0
+pyyaml>=6.0
+pgserver>=0.1.4 ; platform_system != "Linux" or platform_machine == "x86_64"
