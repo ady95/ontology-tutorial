@@ -25,7 +25,10 @@ def impact_context(clause_id: str) -> tuple[str, list[str]]:
     rows = graph_cte.impact(clause_id, max_depth=3)
     article = clause_id.rsplit(".", 1)[0] if "." in clause_id.split(":")[1] else None
     if article and article != clause_id:
-        rows += graph_cte.impact(article, max_depth=3)
+        rows += graph_cte.impact(article, max_depth=3)        # 항 → 그 조를 가리키는 링크(준용 등)
+    from ch06 import api
+    for sub in api.sub_clauses(clause_id):                       # 조 → 그 항들을 가리키는 링크(인용 등)
+        rows += graph_cte.impact(sub, max_depth=3)
     fwd = graph_cte.forward(clause_id, rels=("supersedes",), max_depth=2)
     lines, ids = [], []
     for depth, rel, dep, path in sorted(set(rows)):

@@ -60,7 +60,9 @@ def grade(q: dict, answer: str) -> dict:
     a = _norm(answer or "")
     # key_facts 항목은 '표현1|표현2' 처럼 동의 표현을 '|' 로 나열할 수 있다 (하나라도 있으면 충족)
     missing = [k for k in q.get("key_facts", []) if not any(_norm(alt) in a for alt in str(k).split("|"))]
-    forbidden = [k for k in q.get("forbidden_facts", []) if _norm(k) in a]
+    # 금지 표현은 공백을 유지한 채 비교한다 ("환불 가능" 이 공백 제거 후 "불가능" 에 걸리는 오판 방지)
+    a_sp = (answer or "").replace(",", "").lower()
+    forbidden = [k for k in q.get("forbidden_facts", []) if k.replace(",", "").lower() in a_sp]
     numeric_ok = True
     if "numeric_answer" in q:
         tol = q.get("numeric_tolerance", 0)

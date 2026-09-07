@@ -97,10 +97,9 @@ def evaluate_refund(ctx: dict, as_of: date, *, policy_mode: str = "versioned",
     if ctx["customer_type"] == "team":
         if requester_role is None:
             if policy_mode == "versioned":
-                v.status, v.missing = "hold", ["요청자가 팀 관리자인지"]
-                v.fire("exclude_non_admin_team")
-                v.result = "팀 요금제는 관리자만 요청할 수 있어 요청자 확인이 필요합니다"
-                return v
+                # 요청자 확인 전이라도 예상 환불액은 계산할 수 있다 → 결론은 내되 미확인 사항으로 남긴다
+                v.missing.append("요청자가 팀 관리자인지 (팀 요금제는 관리자만 요청 가능)")
+                v.evidence += ["terms_of_service:8.1"]
         elif requester_role != "admin":
             v.fire("exclude_non_admin_team")
             v.status, v.result = "hold", f"처리 불가. 팀 관리자({', '.join(ctx['team_admins'])})가 요청해야 합니다"
@@ -180,7 +179,8 @@ def evaluate_refund(ctx: dict, as_of: date, *, policy_mode: str = "versioned",
         else:
             best.notes.append(f"제2판을 적용해도 결과가 같거나 불리하므로 제1판을 적용합니다")
     v.status = best.status
-    v.result, v.amount, v.missing = best.result, best.amount, best.missing
+    v.result, v.amount = best.result, best.amount
+    v.missing = v.missing + [m for m in best.missing if m not in v.missing]
     v.policy_version = best_version
     v.notes += best.notes
     v.rules_fired += best.rules_fired

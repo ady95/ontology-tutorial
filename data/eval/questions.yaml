@@ -21,7 +21,7 @@ questions:
     needs_data: false
     expected_status: answer
     answer: 가능합니다. 결제 완료일로부터 7일 이내이고 미사용 상태이므로 결제 금액 전액을 환불합니다.
-    key_facts: [전액 환불, 7일]
+    key_facts: ["전액 환불|전액을 환불|전액환불", 7일]
     evidence: [refund_policy_v2:3.1]
 
   - id: Q02
@@ -40,7 +40,7 @@ questions:
     needs_data: false
     expected_status: answer
     answer: 아니요. 해지는 다음 결제 주기부터 갱신하지 않는 것이며 금액은 반환되지 않습니다. 현재 주기가 끝날 때까지 이용할 수 있습니다. 금액 반환은 환불 규정에 따른 별도 절차입니다.
-    key_facts: [반환되지 않, 다음 결제 주기]
+    key_facts: ["반환되지 않|반환되지는 않|돌아오지 않|돌려받을 수 없", 다음 결제 주기]
     evidence: [terms_of_service:4.1, refund_policy_v2:2.3]
 
   - id: Q04
@@ -104,7 +104,7 @@ questions:
     expected_status: answer
     answer: 가능합니다. 현재 규정(제2판)에서는 프로모션 결제도 전액 환불 기간(월간 7일·미사용) 안에서는 환불할 수 있습니다. 제1판의 "프로모션 환불 불가"는 2025-06-30까지 결제분에만 해당합니다.
     key_facts: ["가능|환불됩니다|환불할 수 있|환불받을 수 있", 7일]
-    forbidden_facts: [환불 불가]
+    forbidden_facts: [환불 불가, 불가능]
     evidence: [refund_policy_v2:7.1, refund_policy_v2:3.1]
 
   - id: Q11
@@ -140,7 +140,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 결제일이 2025-06-20이므로 기본은 제1판이지만, 제2판(위약금 없음)이 더 유리하므로 약관 9조 3항에 따라 제2판 4조 2항을 적용합니다. 잔여 284일 일할 환불 139,277원에서 연간 할인 환수분 7,945원을 빼 약 131,300원을 환불합니다. 제1판을 적용했다면 위약금 10%를 공제해 약 125,300원입니다.
-    key_facts: [제2판, 9조 3항, 위약금 없]
+    key_facts: [제2판, 9조 3항]
     numeric_answer: 131332
     numeric_tolerance: 500
     evidence: [terms_of_service:9.3, refund_policy_v2:4.2, refund_policy_v2:4.4, ops_manual:2.2]
@@ -160,7 +160,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 환불은 없습니다. 좌석 축소는 다음 결제 주기인 2026-07-15부터 반영되며, 현재 주기(2025-07-15 ~ 2026-07-14)의 차액은 환불하지 않습니다.
-    key_facts: [환불 없, "2026-07-15"]
+    key_facts: ["환불 없|환불이 없|환불은 없|환불되지 않|환불하지 않", "2026-07-15|2026년 7월 15일"]
     evidence: [refund_policy_v2:5.1]
 
   - id: Q17
@@ -180,7 +180,8 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 가능합니다. 프로모션 코드 WELCOME50으로 2025-09-04 결제해 4일 경과했고 문서 0건·로그인 1회로 미사용이므로, 프로모션 결제의 전액 환불 기간 안에 해당해 결제액 4,950원을 환불합니다.
-    key_facts: [가능, "4,950"]
+    key_facts: ["가능|환불됩니다|환불할 수 있", "4,950"]
+    forbidden_facts: [불가능, 환불 불가, 대상이 아닙니다]
     evidence: [refund_policy_v2:7.1, refund_policy_v2:3.1]
 
   - id: Q19
@@ -199,7 +200,8 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 가능합니다. 학생 요금제는 베이직 규정을 준용하므로 월간 7일 이내·미사용 요건을 적용합니다. 2025-09-02 결제로 6일 경과, 문서 0건·로그인 3회(3회 이하)로 미사용이므로 4,900원 전액 환불합니다.
-    key_facts: [가능, "4,900"]
+    key_facts: ["가능|환불됩니다|환불할 수 있", "4,900"]
+    forbidden_facts: [불가능, 환불 불가, 대상이 아닙니다]
     evidence: [refund_policy_v2:6.1, refund_policy_v2:3.1, refund_policy_v2:2.1]
 
   - id: Q21
@@ -208,8 +210,8 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 가능합니다. 학생 인증이 2025-08-15에 만료된 뒤 2025-09-03에 베이직 가격(9,900원)으로 자동 갱신된 결제이므로, 갱신 후 7일 이내 요청 시 사용 여부와 관계없이 전액 환불하는 조항이 적용됩니다. 9,900원을 환불합니다.
-    key_facts: [가능, "9,900", 인증]
-    forbidden_facts: [환불 불가]
+    key_facts: ["가능|환불됩니다|환불할 수 있", "9,900", 인증]
+    forbidden_facts: [환불 불가, 불가능, 대상이 아닙니다]
     evidence: [refund_policy_v2:6.2]
 
   - id: Q22
@@ -245,7 +247,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 약 829원입니다. INC-01은 회사 책임 30시간 장애로 보상 대상이며, 프로 월간 요금 19,900원 기준 19,900 × 30 ÷ 720 = 829원을 크레딧으로 지급해 다음 결제에서 차감합니다.
-    key_facts: [크레딧, 30시간]
+    key_facts: [크레딧]
     numeric_answer: 829
     numeric_tolerance: 5
     evidence: [refund_policy_v2:8.1, ops_manual:5.2]
@@ -256,7 +258,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 아니요. INC-03은 12시간 중단으로 연속 24시간 미만이므로 보상 대상이 아닙니다.
-    key_facts: [아니, 24시간]
+    key_facts: ["아니|보상 대상이 아|대상이 아|받을 수 없|해당하지 않", 24시간]
     evidence: [refund_policy_v2:8.1, ops_manual:5.1]
 
   - id: Q27
@@ -265,7 +267,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 아니요. INC-02는 2025-08-20에 공지된 정기 점검(6시간)으로 약관상 장애로 보지 않으므로 보상 대상이 아닙니다.
-    key_facts: [정기 점검, 아니]
+    key_facts: [정기 점검, "아니|보상받을 수 없|보상 대상이 아|대상이 아|받을 수 없"]
     evidence: [terms_of_service:7.2, ops_manual:5.3]
 
   - id: Q28

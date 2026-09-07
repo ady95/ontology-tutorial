@@ -55,16 +55,34 @@ def clauses_of(doc_id: str, article: str | None = None) -> list[dict]:
     return [dict(zip(["clause_id", "clause_no", "heading", "content"], r)) for r in rows]
 
 
-def linked(clause_id: str, rel: str, reverse: bool = False) -> list[str]:
-    """조항 관계 탐색. reverse=True 면 '이 조항을 가리키는 쪽'을 찾는다 (영향 범위)."""
+def sub_clauses(clause_id: str) -> list[str]:
+    """조(article) id 를 주면 그 아래 항 id 목록. 항이면 빈 목록. (조↔항 소속 관계, 09-2 참조)"""
+    doc, no = clause_id.split(":", 1)
+    if "." in no:
+        return []
     with db.connect() as c:
-        if reverse:
-            rows = c.execute("SELECT from_clause FROM clause_links WHERE rel=%s AND to_ref=%s ORDER BY 1",
-                             (rel, clause_id)).fetchall()
-        else:
-            rows = c.execute("SELECT to_ref FROM clause_links WHERE rel=%s AND from_clause=%s ORDER BY 1",
-                             (rel, clause_id)).fetchall()
+        rows = c.execute("SELECT clause_id FROM clauses WHERE doc_id=%s AND clause_no LIKE %s ORDER BY clause_no",
+                         (doc, no + ".%")).fetchall()
     return [r[0] for r in rows]
+
+
+def linked(clause_id: str, rel: str, reverse: bool = False, include_sub: bool = True) -> list[str]:
+    """조항 관계 탐색. reverse=True 면 '이 조항을 가리키는 쪽'을 찾는다 (영향 범위).
+    include_sub=True 면 조 단위 id 에 대해 그 항들의 링크도 함께 본다."""
+    ids = [clause_id] + (sub_clauses(clause_id) if include_sub else [])
+    out: list[str] = []
+    with db.connect() as c:
+        for cid in ids:
+            if reverse:
+                rows = c.execute("SELECT from_clause FROM clause_links WHERE rel=%s AND to_ref=%s ORDER BY 1",
+                                 (rel, cid)).fetchall()
+            else:
+                rows = c.execute("SELECT to_ref FROM clause_links WHERE rel=%s AND from_clause=%s ORDER BY 1",
+                                 (rel, cid)).fetchall()
+            for r in rows:
+                if r[0] not in out:
+                    out.append(r[0])
+    return out
 
 
 def resolve_mutatis_mutandis(clause_id: str) -> list[str]:
