@@ -160,7 +160,7 @@ questions:
     needs_data: true
     expected_status: answer
     answer: 환불은 없습니다. 좌석 축소는 다음 결제 주기인 2026-07-15부터 반영되며, 현재 주기(2025-07-15 ~ 2026-07-14)의 차액은 환불하지 않습니다.
-    key_facts: [환불 없, 2026-07-15]
+    key_facts: [환불 없, "2026-07-15"]
     evidence: [refund_policy_v2:5.1]
 
   - id: Q17
