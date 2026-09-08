@@ -1,0 +1,33 @@
+읽은 경로: /index.md → /glossary/index.md → /concepts/index.md → /clauses/index.md → /concepts/PolicyVersion.md → /concepts/Clause.md → /concepts/RefundRequest.md → /clauses/refund_policy_v2/index.md → /clauses/ops_manual/index.md → /clauses/refund_policy_v2/4.md → /clauses/ops_manual/6.md → /clauses/ops_manual/6.1.md → /clauses/ops_manual/6.2.md → /clauses/ops_manual/6.3.md
+### 결론
+환불 규정 4조가 개정되면 다음을 함께 점검해야 합니다.
+
+1. **개정 시행일 기준으로 진행 중인 환불 요청**
+2. **개정 전에 결제된 구독 중, 개정 조항을 고객에게 유리하게 적용할 수 있는 구독**
+3. **상담 스크립트와 FAQ의 관련 문구**
+
+### 적용 조건
+- 환불 규정 4조의 개정이 **시행되는 경우** 적용됩니다.
+- 특히 개정 전 결제 건이라도 새 조항이 고객에게 유리하게 적용될 가능성이 있는지 확인해야 합니다.
+- 제4조는 제6.1조에 **준용**되므로, 관련 조항 적용 여부도 함께 확인해야 합니다.
+
+### 근거(문서 경로)
+- `/clauses/ops_manual/6.md`  
+  - 규정 개정 시 재점검 대상:
+    - 진행 중인 환불 요청
+    - 개정 전 결제된 구독 중 고객에게 유리하게 적용될 수 있는 구독
+    - 상담 스크립트와 FAQ
+- `/clauses/refund_policy_v2/4.md`  
+  - 연간 구독 환불 기준을 규정하며, 제4조가 `/clauses/refund_policy_v2/6.1.md`에 준용됨.
+- `/clauses/ops_manual/6.1.md`  
+  - 개정 시행일 기준으로 진행 중인 환불 요청 점검
+- `/clauses/ops_manual/6.2.md`  
+  - 개정 전 결제된 구독 중 고객에게 유리하게 적용될 수 있는 건 점검
+- `/clauses/ops_manual/6.3.md`  
+  - 상담 스크립트와 FAQ의 관련 문구 점검
+
+### 미확인 사항
+- 실제 **FAQ 문서와 상담 스크립트의 경로 및 문구**는 읽은 문서에 제시되어 있지 않습니다.
+- 개정된 제4조의 구체적인 시행일과 경과 적용 기준은 확인되지 않습니다.
+- 위 문서들의 `x_valid_to`는 모두 `null`이므로, 읽은 범위에서는 유효기간 만료로 현재 유효하지 않은 판은 확인되지 않습니다.
+usage: {'calls': 4, 'prompt_tokens': 8975, 'completion_tokens': 1472, 'embed_tokens': 0, 'seconds': 17.02}

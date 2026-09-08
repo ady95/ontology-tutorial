@@ -7,3 +7,4 @@ pgdata/
 results/*.jsonl
 .DS_Store
 Thumbs.db
+okf_bundle/

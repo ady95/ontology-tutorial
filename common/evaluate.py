@@ -111,6 +111,7 @@ def run(config_name: str, pipeline: Callable[[str, date], dict], *, only: list[s
                 "prompt_tokens": after["prompt_tokens"] - before["prompt_tokens"],
                 "completion_tokens": after["completion_tokens"] - before["completion_tokens"],
                 "calls": after["calls"] - before["calls"],
+                "facts": res.get("facts"),
             }
             rows.append(row)
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
@@ -181,10 +182,10 @@ def aggregate(config_name: str, runs: int = 3) -> dict:
     return out
 
 
-def compare_runs(*config_names: str, runs: int = 3) -> str:
+def compare_runs(*config_names: str, runs: int = 3, questions_path: pathlib.Path | None = None) -> str:
     """구성별로 N회 중 정답 횟수를 표로. 3/3 = 안정 정답, 0/3 = 안정 오답, 그 사이 = 불안정."""
     aggs = {n: aggregate(n, runs) for n in config_names}
-    _, questions = load_questions()
+    _, questions = load_questions(questions_path or QUESTIONS)
     head = "| 질문 | 유형 | " + " | ".join(config_names) + " |"
     lines = [head, "|---|---|" + "|".join("---" for _ in config_names) + "|"]
     for q in questions:
@@ -208,7 +209,8 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         path = pathlib.Path(sys.argv[1])
         rows = [json.loads(l) for l in path.read_text(encoding="utf-8").splitlines() if l.strip()]
-        _, qs = load_questions()
+        qpath = pathlib.Path(sys.argv[sys.argv.index("--questions") + 1]) if "--questions" in sys.argv else QUESTIONS
+        _, qs = load_questions(qpath)
         qmap = {q["id"]: q for q in qs}
         changed = []
         for r in rows:

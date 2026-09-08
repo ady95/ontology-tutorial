@@ -1,0 +1,76 @@
+
+===== tax4_semantic_r1 =====
+O T01 [-]  10.2s
+O T02 [K]   7.0s
+O T03 [M]   7.8s
+O T04 [K]   6.2s
+O T05 [K]  12.3s
+O T06 [K]   9.3s
+O T07 [D]   6.2s
+O T08 [K]  10.1s
+O T09 [K]  10.7s
+O T10 [K]  13.5s
+
+유형별 정답률
+  기준선 (-)  1/ 1
+  데이터 (D)  1/ 1
+  의미  (M)  1/ 1
+  규칙  (K)  7/ 7
+  전체        10/10
+토큰 43,737 / 소요 93.2s / LLM 호출 20회
+결과 저장: D:\WORK_agent\ontology_wikidocs\ontology-tutorial\results\tax4_semantic_r1.jsonl
+
+===== tax4_semantic_r2 =====
+O T01 [-]   8.1s
+O T02 [K]   9.1s
+O T03 [M]   8.4s
+O T04 [K]   7.4s
+O T05 [K]   9.9s
+O T06 [K]  11.1s
+O T07 [D]   5.8s
+O T08 [K]  10.1s
+O T09 [K]  10.2s
+O T10 [K]  11.4s
+
+유형별 정답률
+  기준선 (-)  1/ 1
+  데이터 (D)  1/ 1
+  의미  (M)  1/ 1
+  규칙  (K)  7/ 7
+  전체        10/10
+토큰 43,886 / 소요 91.6s / LLM 호출 20회
+결과 저장: D:\WORK_agent\ontology_wikidocs\ontology-tutorial\results\tax4_semantic_r2.jsonl
+
+===== tax4_semantic_r3 =====
+O T01 [-]   6.4s
+O T02 [K]   7.1s
+O T03 [M]   9.0s
+O T04 [K]   6.9s
+O T05 [K]  10.8s
+O T06 [K]  10.3s
+O T07 [D]   6.9s
+O T08 [K]  10.0s
+O T09 [K]   8.8s
+O T10 [K]  16.4s
+
+유형별 정답률
+  기준선 (-)  1/ 1
+  데이터 (D)  1/ 1
+  의미  (M)  1/ 1
+  규칙  (K)  7/ 7
+  전체        10/10
+토큰 43,785 / 소요 92.6s / LLM 호출 20회
+결과 저장: D:\WORK_agent\ontology_wikidocs\ontology-tutorial\results\tax4_semantic_r3.jsonl
+| 질문 | 유형 | tax4_semantic |
+|---|---|---|
+| T01 | - | 3/3 |
+| T02 | K | 3/3 |
+| T03 | M | 3/3 |
+| T04 | K | 3/3 |
+| T05 | K | 3/3 |
+| T06 | K | 3/3 |
+| T07 | D | 3/3 |
+| T08 | K | 3/3 |
+| T09 | K | 3/3 |
+| T10 | K | 3/3 |
+| **집계** | | 안정 10 / 불안정 0 / 평균 10.0 |

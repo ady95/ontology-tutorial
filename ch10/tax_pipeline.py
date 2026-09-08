@@ -226,8 +226,9 @@ def to_facts(a: dict) -> dict:
     amount = a.get("amount_krw")
     if amount is None and inds and all(i["amount"] is not None for i in inds):
         amount = sum(i["amount"] for i in inds)
+    start = d(a.get("business_start_date")) or d(a.get("registration_date"))   # 개업일이 없으면 등록일을 개시일 후보로 (해석 분기는 규칙이 판단)
     return {"amount": amount, "vat_included": a.get("vat_included"), "industries": inds, "places": a.get("places"),
-            "same_place_mixed": bool(a.get("same_place_mixed")), "business_start_date": d(a.get("business_start_date")),
+            "same_place_mixed": bool(a.get("same_place_mixed")), "business_start_date": start,
             "registration_date": d(a.get("registration_date")), "first_supply_date": d(a.get("first_supply_date"))}
 
 
@@ -280,4 +281,4 @@ if __name__ == "__main__":
             for n in names:
                 print(f"\n===== {n}_r{i} =====")
                 evaluate.run(f"{n}_r{i}", CONFIGS[n], questions_path=QUESTIONS)
-        print(evaluate.compare_runs(*names, runs=a.start + a.runs - 1) if (a.start + a.runs - 1) >= 1 else "")
+        print(evaluate.compare_runs(*names, runs=a.start + a.runs - 1, questions_path=QUESTIONS))
