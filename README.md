@@ -15,7 +15,7 @@
 | psycopg | 3.x |
 | openai (Python SDK) | 1.x |
 
-LLM은 OpenAI API 기준(`gpt-4o-mini`, `text-embedding-3-small`)으로 서술하며, `OPENAI_BASE_URL`을 바꾸면 호환 API를 쓸 수 있습니다.
+LLM은 OpenAI API 기준으로 서술합니다. 책에 실린 정답률·토큰·시간 수치는 모두 `gpt-5.6-luna` + `text-embedding-3-small`(1536차원)로 측정했으므로 기본값도 그렇게 두었습니다. `LLM_MODEL`을 바꾸면 다른 모델로 실행할 수 있고, `OPENAI_BASE_URL`을 바꾸면 호환 API를 쓸 수 있습니다. 모델을 바꾸면 절대 수치는 달라집니다.
 
 ## 시작하기
 

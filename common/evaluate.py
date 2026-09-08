@@ -97,6 +97,8 @@ def run(config_name: str, pipeline: Callable[[str, date], dict], *, only: list[s
             g = grade(q, res.get("answer", ""))
             row = {
                 "config": config_name,
+                "model": llm.LLM_MODEL,              # 어떤 모델로 낸 수치인지 결과에 남긴다
+                "embedding_model": llm.EMBEDDING_MODEL,
                 "id": q["id"],
                 "error_type": q["error_type"],
                 "needs_data": q["needs_data"],

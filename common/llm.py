@@ -17,7 +17,7 @@ from openai import BadRequestError, OpenAI
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 load_dotenv(os.environ.get("ENV_FILE", ROOT / ".env"))
 
-LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-4o-mini")
+LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-5.6-luna")  # 이 책의 모든 수치를 낸 모델
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small")
 EMBEDDING_DIM = int(os.environ.get("EMBEDDING_DIM", "1536"))
 
