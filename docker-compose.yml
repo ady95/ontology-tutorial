@@ -1,7 +1,7 @@
 services:
+  # 1~8장·11장 실습용: pgvector 포함 (AGE 없음)
   db:
-    # PostgreSQL 16 + pgvector + Apache AGE 가 모두 포함된 이미지
-    image: apache/age:PG16_latest
+    image: pgvector/pgvector:pg16
     container_name: ontology-db
     environment:
       POSTGRES_USER: ontology
@@ -11,5 +11,20 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  # 09-2의 Apache AGE 절에서만 사용: AGE 포함 (pgvector 없음)
+  age:
+    image: apache/age:release_PG16_1.6.0
+    container_name: ontology-age
+    environment:
+      POSTGRES_USER: ontology
+      POSTGRES_PASSWORD: ontology
+      POSTGRES_DB: ontology
+    ports:
+      - "5433:5432"
+    volumes:
+      - agedata:/var/lib/postgresql/data
+
 volumes:
   pgdata:
+  agedata:
