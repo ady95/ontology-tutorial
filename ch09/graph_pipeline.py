@@ -79,6 +79,7 @@ def _compose(question, a, verdict, evidence_rows, kind, as_of) -> dict:
             + f"근거 조항:\n{retrieval.format_context(evidence_rows)}\n\n{judgement}\n\n질문: {question}")
     text = llm.chat(pipeline.ANSWER_SYSTEM, user)
     return {"answer": text, "status": status, "evidence": evid, "missing": missing,
+            "cited": pipeline.cited_clauses(text), "rules_fired": (verdict.rules_fired if verdict else []),
             "analysis": a, "contexts": [r["clause_id"] for r in evidence_rows]}
 
 

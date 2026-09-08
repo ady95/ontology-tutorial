@@ -168,9 +168,9 @@ questions:
     error_type: D
     needs_data: true
     expected_status: answer
-    answer: 결제일 2025-07-15, 오늘까지 55일 경과로 30일이 지나 일할 환불입니다. 745,000원 기준 잔여 309일분 630,699원에서 연간 할인 환수분 22,860원을 빼 약 607,800원입니다. 50만원을 초과하므로 운영 책임자 승인이 필요합니다. 요청자가 팀 관리자인지도 확인해야 합니다.
+    answer: 결제일 2025-07-15, 오늘까지 55일 경과로 30일이 지나 일할 환불입니다. 745,000원 기준 잔여 309일분에서 연간 할인 환수분을 빼 607,838원입니다(중간값은 반올림하지 않고 최종 금액만 반올림). 50만원을 초과하므로 운영 책임자 승인이 필요합니다. 요청자가 팀 관리자인지도 확인해야 합니다.
     key_facts: [운영 책임자, 일할]
-    numeric_answer: 607839
+    numeric_answer: 607838
     numeric_tolerance: 1500
     evidence: [refund_policy_v2:4.2, ops_manual:3, terms_of_service:8.1]
 

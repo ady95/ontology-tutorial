@@ -104,7 +104,10 @@ def run(config_name: str, pipeline: Callable[[str, date], dict], *, only: list[s
                 "question": q["question"],
                 "answer": res.get("answer", ""),
                 "status": res.get("status", "answer"),
-                "evidence": res.get("evidence", []),
+                "evidence": res.get("evidence", []),      # 시스템이 고른 근거 조항
+                "cited": res.get("cited", []),            # 답변이 실제로 인용한 조항 (11-3 진단용)
+                "rules_fired": res.get("rules_fired", []),
+                "analysis": res.get("analysis", {}),
                 "contexts": res.get("contexts", []),
                 **g,
                 "seconds": round(elapsed, 2),

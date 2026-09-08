@@ -143,7 +143,12 @@ def load(embed: bool = False) -> None:
         conn.commit()
 
         n = conn.execute("SELECT count(*) FROM clauses").fetchone()[0]
-        print(f"개념 {len(concept_ids) + len(parent_of)} / 관계 {len(model['relations'])} / 용어 {len(glossary['terms'])} / 조항 {n} / 링크 {len(links) - len(bad)}")
+        # 실제 삽입된 행 수를 센다 (하위 유형 중 이미 정의된 개념과 겹치는 것이 있어 단순 합산과 다르다)
+        n_concept = conn.execute("SELECT count(*) FROM concepts").fetchone()[0]
+        n_rel = conn.execute("SELECT count(*) FROM relation_types").fetchone()[0]
+        n_term = conn.execute("SELECT count(*) FROM glossary_terms").fetchone()[0]
+        n_link = conn.execute("SELECT count(*) FROM clause_links").fetchone()[0]
+        print(f"개념 {n_concept} / 관계 {n_rel} / 용어 {n_term} / 조항 {n} / 링크 {n_link}")
 
         if embed:
             from common import llm

@@ -50,7 +50,7 @@ ANALYZE_SYSTEM = """당신은 고객지원 질문을 구조화하는 분석기�
   "requested_at": "YYYY-MM-DD" | null,   // 질문이 특정 과거 시점의 요청을 가정하면
   "seats_new": 3 | null,
   "requester_role": "admin | member | null",
-  "hours_since_payment_known": true | false,   // 결제 취소 판단에 필요한 결제 시각이 질문에 있는가
+  "hours_since_payment": 12 | null,            // 결제 후 경과 시간(시간 단위). 질문에 없으면 null. "어제"처럼 모호하면 null
   "concepts": ["Unused", "CancellationRequest", ...],   // 질문에 관련된 개념 id
   "clause_hint": "refund_policy_v2:4" | null           // 질문이 특정 조항을 지목하면
 }"""
@@ -107,6 +107,19 @@ def expand_evidence(clause_ids: list[str]) -> list[dict]:
     return out
 
 
+CLAUSE_ID_RE = re.compile(r"[a-z_]+(?:_v\d)?:[0-9]+(?:\.[0-9]+)?|(?:faq|ops_manual|pricing_guide):[^\s,)\]]+")
+
+
+def cited_clauses(answer: str) -> list[str]:
+    """답변 문장에서 실제로 인용된 조항 ID 를 뽑는다 (07-4 형식 검사·11-3 진단용)."""
+    out: list[str] = []
+    for m in CLAUSE_ID_RE.finditer(answer or ""):
+        cid = m.group().rstrip(".,)")
+        if cid not in out:
+            out.append(cid)
+    return out
+
+
 def concept_text(concept_ids: list[str]) -> str:
     lines = []
     for cid in concept_ids:
@@ -130,11 +143,23 @@ def decide(question: str, a: dict, as_of: date) -> tuple[rules.Verdict | None, l
     if rtype == "PaymentReversal":
         v = rules.Verdict()
         v.fire("payment_reversal")
-        if not a.get("hours_since_payment_known"):
+        hours = a.get("hours_since_payment")
+        if hours is None:
             v.status, v.missing = "hold", ["정확한 결제 시각(24시간 이내 여부)"]
             v.result = "결제 완료 후 24시간 이내면 결제 취소(승인 취소, 환불 규정 미적용), 지났으면 환불 규정 적용"
+        elif hours <= 24:
+            v.result = f"승인 취소 처리 (결제 후 {hours}시간 경과, 24시간 이내). 환불 규정 미적용"
         else:
-            v.result = "승인 취소 처리. 환불 규정 미적용"
+            # 24시간을 넘겼으면 결제 취소가 아니라 환불 요청으로 넘긴다
+            v.result = f"결제 후 {hours}시간이 지나 결제 취소 대상이 아닙니다. 환불 규정을 적용합니다"
+            if ctx:
+                rv = rules.evaluate_refund(ctx, when, policy_mode="versioned", requester_role=a.get("requester_role") or None)
+                rv.notes.insert(0, v.result)
+                for e in v.evidence:
+                    if e not in rv.evidence:
+                        rv.evidence.append(e)
+                return rv, expand_evidence(rv.evidence), "결제 취소 → 환불"
+            v.status, v.missing = "hold", ["환불 규정 적용에 필요한 고객·결제 정보"]
         v.evidence += ["ops_manual:4"]
         return v, expand_evidence(v.evidence), "결제 취소"
     if rtype == "Cancellation":
@@ -209,6 +234,7 @@ def answer(question: str, as_of: date) -> dict:
             + f"{judgement}\n\n질문: {question}")
     text = llm.chat(ANSWER_SYSTEM, user)
     return {"answer": text, "status": status, "evidence": evid, "missing": missing,
+            "cited": cited_clauses(text), "rules_fired": (verdict.rules_fired if verdict else []),
             "analysis": a, "contexts": [r["clause_id"] for r in evidence_rows]}
 
 

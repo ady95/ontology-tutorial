@@ -57,6 +57,12 @@ class Verdict:
 
 def prorate(amount: int, paid_at: date, period_end: date, as_of: date, version: str,
             monthly_list_price: int) -> tuple[int, str]:
+    """일할 환불액을 계산한다.
+
+    반올림 정책: 중간값(일할 금액, 할인 환수액)은 실수로 유지하고 **최종 금액만 한 번 반올림**한다.
+    중간값마다 반올림하면 1원씩 어긋난다 (C005: 최종 반올림 607,838원 / 중간 반올림 607,839원).
+    설명 문장에 찍히는 중간값은 표시용으로만 반올림한다.
+    """
     total = (period_end - paid_at).days + 1
     remaining = (period_end - as_of).days          # 요청일 다음 날 ~ 종료일
     used = total - remaining
