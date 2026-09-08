@@ -1,0 +1,13 @@
+place_id,taxpayer_id,industry_code,industry_label,is_real_estate_rental,is_excluded_industry,supply_consideration_2024,supply_value_2024,vat_included_known
+BP001,T001,Retail,소매업,false,false,70000000,63636364,true
+BP002,T002,Restaurant,음식점업,false,false,90000000,81818182,true
+BP003,T003,Retail,소매업,false,false,,98000000,true
+BP004,T004,RealEstateRental,부동산임대업,true,false,60000000,54545455,true
+BP005,T005,Mixed,임대+카페(구분 미확인),true,false,,,false
+BP006,T006,Retail,의류 소매업,false,false,20000000,18181818,true
+BP007,T007,Retail,소매업,false,false,60000000,54545455,true
+BP008,T007,OnlineRetail,통신판매업,false,false,55000000,50000000,true
+BP009,T008,Wholesale,도매업,false,true,30000000,27272727,true
+BP010,T009,Cafe,카페(음식점업),false,false,60000000,54545455,true
+BP011,T009,RealEstateRental,부동산임대업(같은 사업장 2층),true,false,40000000,36363636,true
+BP012,T010,Retail,소매업,false,false,0,0,true

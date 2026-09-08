@@ -72,11 +72,12 @@ def grade(q: dict, answer: str) -> dict:
 
 
 def run(config_name: str, pipeline: Callable[[str, date], dict], *, only: list[str] | None = None,
-        verbose: bool = True) -> list[dict]:
-    """질문 30개를 파이프라인에 넣고 채점 결과를 results/<config>.jsonl 에 저장합니다."""
+        verbose: bool = True, questions_path: pathlib.Path | None = None) -> list[dict]:
+    """질문 세트를 파이프라인에 넣고 채점 결과를 results/<config>.jsonl 에 저장합니다.
+    questions_path 를 주면 다른 질문 세트(예: 10장 data/tax/questions.yaml)로 채점합니다."""
     from common import llm  # 지연 임포트: 채점만 할 때는 LLM 모듈이 필요 없음
 
-    as_of, questions = load_questions()
+    as_of, questions = load_questions(questions_path or QUESTIONS)
     RESULTS_DIR.mkdir(exist_ok=True)
     out_path = RESULTS_DIR / f"{config_name}.jsonl"
     rows: list[dict] = []
@@ -131,7 +132,7 @@ def summary(rows: list[dict]) -> str:
     for t in ["-", "R", "D", "M", "K"]:
         if t in by_type:
             v = by_type[t]
-            lines.append(f"  {ERROR_TYPE_LABEL[t]:4s}({t}) {sum(v):2d}/{len(v):2d}")
+            lines.append(f"  {ERROR_TYPE_LABEL.get(t, t):4s}({t}) {sum(v):2d}/{len(v):2d}")
     total = sum(r["correct"] for r in rows)
     lines.append(f"  전체        {total:2d}/{len(rows):2d}")
     tok = sum(r["prompt_tokens"] + r["completion_tokens"] for r in rows)
