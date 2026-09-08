@@ -43,6 +43,8 @@ class Verdict:
     missing: list[str] = field(default_factory=list)   # hold 일 때 확인할 항목
     notes: list[str] = field(default_factory=list)     # 계산 과정·적용 이유
     rules_fired: list[str] = field(default_factory=list)
+    facts: dict | None = None                          # 조회한 정형 사실 (조회 안 했으면 None)
+    trace: list[str] = field(default_factory=list)     # 거쳐 온 판단 경로 (조기 반환 포함)
 
     def fire(self, rule_id: str, note: str | None = None) -> None:
         self.rules_fired.append(rule_id)

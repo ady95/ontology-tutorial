@@ -80,6 +80,8 @@ def _compose(question, a, verdict, evidence_rows, kind, as_of) -> dict:
     text = llm.chat(pipeline.ANSWER_SYSTEM, user)
     return {"answer": text, "status": status, "evidence": evid, "missing": missing,
             "cited": pipeline.cited_clauses(text), "rules_fired": (verdict.rules_fired if verdict else []),
+            "facts": (verdict.facts if verdict else None),
+            "decision_trace": (verdict.trace if verdict else ["search_only"]),
             "analysis": a, "contexts": [r["clause_id"] for r in evidence_rows]}
 
 

@@ -107,17 +107,34 @@ def expand_evidence(clause_ids: list[str]) -> list[dict]:
     return out
 
 
-CLAUSE_ID_RE = re.compile(r"[a-z_]+(?:_v\d)?:[0-9]+(?:\.[0-9]+)?|(?:faq|ops_manual|pricing_guide):[^\s,)\]]+")
+_KNOWN_CLAUSE_IDS: list[str] | None = None
+
+
+def known_clause_ids() -> list[str]:
+    """DB 의 조항 ID 전체를 긴 것부터 정렬해 둔다 (부분 문자열 오매칭 방지)."""
+    global _KNOWN_CLAUSE_IDS
+    if _KNOWN_CLAUSE_IDS is None:
+        with db.connect() as c:
+            rows = c.execute("SELECT clause_id FROM clauses").fetchall()
+        _KNOWN_CLAUSE_IDS = sorted((r[0] for r in rows), key=len, reverse=True)
+    return _KNOWN_CLAUSE_IDS
 
 
 def cited_clauses(answer: str) -> list[str]:
-    """답변 문장에서 실제로 인용된 조항 ID 를 뽑는다 (07-4 형식 검사·11-3 진단용)."""
+    """답변 문장에서 실제로 인용된 조항 ID 를 뽑는다 (07-4 형식 검사·11-3 진단용).
+
+    정규식으로 자르면 'faq:결제와 구독' 처럼 공백이 든 ID 가 'faq:결제와' 에서 끊긴다.
+    그래서 DB 의 실제 ID 목록을 긴 것부터 대조한다. 목록에 없는 형태는 잡지 못하므로,
+    이 함수가 빈 목록을 돌려준다는 것은 "조항 ID 문자열을 찾지 못했다"는 뜻이지
+    "근거를 언급하지 않았다"는 뜻이 아니다 (07-4).
+    """
+    text = answer or ""
     out: list[str] = []
-    for m in CLAUSE_ID_RE.finditer(answer or ""):
-        cid = m.group().rstrip(".,)")
-        if cid not in out:
+    for cid in known_clause_ids():
+        if cid in text and cid not in out:
             out.append(cid)
-    return out
+    # 짧은 ID 가 긴 ID 의 일부인 경우 제거 (예: refund_policy_v2:4 vs refund_policy_v2:4.1)
+    return [c for c in out if not any(c != o and c in o for o in out)]
 
 
 def concept_text(concept_ids: list[str]) -> str:
@@ -129,8 +146,30 @@ def concept_text(concept_ids: list[str]) -> str:
     return "\n".join(lines)
 
 
+def valid_hours(value) -> float | None:
+    """분석기가 낸 경과 시간을 검증한다. 0 이상의 유한한 수가 아니면 None(미확인)으로 본다 (07-1).
+
+    LLM 출력이라 문자열이나 음수가 올 수 있고, 그대로 비교하면 예외가 나거나
+    음수가 24 이하로 통과해 결제 취소로 처리된다.
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        h = float(value)
+    except (TypeError, ValueError):
+        return None
+    if h != h or h in (float("inf"), float("-inf")) or h < 0:
+        return None
+    return h
+
+
 def decide(question: str, a: dict, as_of: date) -> tuple[rules.Verdict | None, list[dict], str]:
-    """규칙 판단 + 근거 조항. 반환: (verdict, 근거 조항 목록, 설명)"""
+    """규칙 판단 + 근거 조항. 반환: (verdict, 근거 조항 목록, 설명)
+
+    조회한 사실과 거쳐 온 판단 경로는 verdict.facts / verdict.trace 에 담아
+    결과 파일까지 전달한다 (11-3 진단용). 조회를 하지 않은 경우와 조회했으나
+    결과가 없는 경우를 구분하기 위해, 조회를 시도했으면 dict 를, 하지 않았으면 None 을 둔다.
+    """
     rtype = a.get("request_type")
     ctx = api.customer_context(a["customer_id"]) if a.get("customer_id") else None
     when = date.fromisoformat(a["requested_at"]) if a.get("requested_at") else as_of
@@ -141,9 +180,10 @@ def decide(question: str, a: dict, as_of: date) -> tuple[rules.Verdict | None, l
         v.fire("classify_request")
         return v, expand_evidence(v.evidence), "용어 확인"
     if rtype == "PaymentReversal":
-        v = rules.Verdict()
+        v = rules.Verdict(facts=ctx)
         v.fire("payment_reversal")
-        hours = a.get("hours_since_payment")
+        v.trace.append("classify:PaymentReversal")
+        hours = valid_hours(a.get("hours_since_payment"))
         if hours is None:
             v.status, v.missing = "hold", ["정확한 결제 시각(24시간 이내 여부)"]
             v.result = "결제 완료 후 24시간 이내면 결제 취소(승인 취소, 환불 규정 미적용), 지났으면 환불 규정 적용"
@@ -158,6 +198,10 @@ def decide(question: str, a: dict, as_of: date) -> tuple[rules.Verdict | None, l
                 for e in v.evidence:
                     if e not in rv.evidence:
                         rv.evidence.append(e)
+                # 전환 전 판정도 추적에 남긴다 (S017)
+                rv.rules_fired = v.rules_fired + rv.rules_fired
+                rv.trace = v.trace + [f"payment_reversal:over_24h({hours}h)", "→refund"] + rv.trace
+                rv.facts = ctx
                 return rv, expand_evidence(rv.evidence), "결제 취소 → 환불"
             v.status, v.missing = "hold", ["환불 규정 적용에 필요한 고객·결제 정보"]
         v.evidence += ["ops_manual:4"]
@@ -168,12 +212,15 @@ def decide(question: str, a: dict, as_of: date) -> tuple[rules.Verdict | None, l
         return v, expand_evidence(v.evidence), "해지"
     if rtype == "SeatChange" and ctx:
         v = rules.evaluate_seat_change(ctx, int(a.get("seats_new") or ctx["seats"]))
+        v.facts = ctx; v.trace = ["classify:SeatChange", "lookup:customer_context"] + v.rules_fired
         return v, expand_evidence(v.evidence), "좌석 변경"
     if rtype == "IncidentCredit":
         inc = api.incident(a.get("incident_id")) if a.get("incident_id") else (
             api.incident(on=date.fromisoformat(a["incident_date"])) if a.get("incident_date") else None)
         if inc:
             v = rules.evaluate_incident_credit(inc, ctx, policy_mode="versioned")
+            v.facts = {"incident": inc, "customer": ctx}
+            v.trace = ["classify:IncidentCredit", "lookup:incident"] + v.rules_fired
             v.notes.insert(0, f"장애 {inc['incident_id']}: {inc['started_at']} ~ {inc['ended_at']} ({inc['duration_hours']}시간, 정기 점검 {inc['is_planned_maintenance']})")
             return v, expand_evidence(v.evidence), "장애 크레딧"
     if rtype == "ImpactAnalysis":
@@ -185,7 +232,14 @@ def decide(question: str, a: dict, as_of: date) -> tuple[rules.Verdict | None, l
         return v, expand_evidence(v.evidence), "영향 범위(구독)"
     if rtype == "Refund" and ctx:
         v = rules.evaluate_refund(ctx, when, policy_mode="versioned", requester_role=a.get("requester_role") or None)
+        v.facts = ctx
+        v.trace = ["classify:Refund", "lookup:customer_context"] + v.rules_fired
         return v, expand_evidence(v.evidence), "환불"
+    if rtype == "Refund" and a.get("customer_id"):
+        # 고객 ID 는 잡았는데 조회 결과가 없다 — 조회 실패와 미조회를 구분해 보류한다
+        v = rules.Verdict(status="hold", result=f"고객 {a['customer_id']} 의 구독 정보를 찾을 수 없어 결론을 보류합니다",
+                          missing=["고객·구독 정보"], facts={}, trace=["classify:Refund", "lookup:customer_context:empty"])
+        return v, [], "조회 실패"
     return None, [], "규정 질문"
 
 
@@ -235,6 +289,8 @@ def answer(question: str, as_of: date) -> dict:
     text = llm.chat(ANSWER_SYSTEM, user)
     return {"answer": text, "status": status, "evidence": evid, "missing": missing,
             "cited": cited_clauses(text), "rules_fired": (verdict.rules_fired if verdict else []),
+            "facts": (verdict.facts if verdict else None),
+            "decision_trace": (verdict.trace if verdict else ["search_only"]),
             "analysis": a, "contexts": [r["clause_id"] for r in evidence_rows]}
 
 

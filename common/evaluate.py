@@ -107,6 +107,7 @@ def run(config_name: str, pipeline: Callable[[str, date], dict], *, only: list[s
                 "evidence": res.get("evidence", []),      # 시스템이 고른 근거 조항
                 "cited": res.get("cited", []),            # 답변이 실제로 인용한 조항 (11-3 진단용)
                 "rules_fired": res.get("rules_fired", []),
+                "decision_trace": res.get("decision_trace", []),
                 "analysis": res.get("analysis", {}),
                 "contexts": res.get("contexts", []),
                 **g,
@@ -117,7 +118,8 @@ def run(config_name: str, pipeline: Callable[[str, date], dict], *, only: list[s
                 "facts": res.get("facts"),
             }
             rows.append(row)
-            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+            # facts 에 date 등 JSON 이 모르는 타입이 섞이므로 문자열로 떨어뜨린다
+            f.write(json.dumps(row, ensure_ascii=False, default=str) + "\n")
             if verbose:
                 mark = "O" if g["correct"] else "X"
                 detail = "" if g["correct"] else f"  누락={g['missing']} 금지={g['forbidden']} 숫자={'OK' if g['numeric_ok'] else '불일치'}"
