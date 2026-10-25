@@ -2,6 +2,8 @@
 
 위키독스 도서 **[온톨로지 따라하기 (RAG 다음의 설계: PostgreSQL로 시작하는 실전 온톨로지)](https://wikidocs.net/book/21274)** 의 실습 예제 저장소입니다.
 
+책 구매: [YES24](https://www.yes24.com/product/goods/196293264) · [교보문고](https://ebook-product.kyobobook.co.kr/dig/epd/ebook/E000013560342) · [위키독스](https://wikidocs.net/book/21274)
+
 가상 기업 "노트클라우드"의 환불·해지·좌석 변경 업무 질문 30개를, 같은 LLM·같은 문서로 다섯 가지 구성(기본 RAG → 검색 개선 → SQL·규칙 결합 → 명시적 의미 모델 → 일부 그래프 탐색)으로 풀어 비교합니다.
 
 ## 기준 버전
